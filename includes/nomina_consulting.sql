@@ -218,7 +218,7 @@ INSERT INTO Oficina(nombre, fk_id_empresa) VALUES
 ('Recursos Humanos', 1),
 ('Contabilidad', 1), 
 ('Ventas', 1),
-('Producción', 1),
+('Producciï¿½n', 1),
 ('TI', 1),
 ('Marketing', 1),
 ('Servicio al Cliente', 1);
@@ -244,16 +244,16 @@ INSERT INTO Departamento(nombre) VALUES
 ('Izabal'),
 ('Jalapa'),
 ('Jutiapa'),
-('Petén'),
+('Petï¿½n'),
 ('Quetzaltenango'),
-('Quiché'),
+('Quichï¿½'),
 ('Retalhuleu'),
-('Sacatepéquez'),
+('Sacatepï¿½quez'),
 ('San Marcos'),
 ('Santa Rosa'),
-('Sololá'),
-('Suchitepéquez'),
-('Totonicapán'),
+('Sololï¿½'),
+('Suchitepï¿½quez'),
+('Totonicapï¿½n'),
 ('Zacapa');
 
 --Estado
@@ -269,21 +269,70 @@ INSERT INTO Estado(nombre) VALUES
 INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
 ('Ingeniero', 1),
 ('Auditor', 1),
-('Diseñador Gráfico', 1),
+('Diseï¿½ador Grï¿½fico', 1),
 ('Administrador', 1),
 ('Contador', 1),
 ('Programador', 1),
 ('Analista de Sistemas', 1),
 ('Consultor', 1),
 ('Gerente de Proyecto', 1),
-('Técnico de Soporte', 1),
+('Tï¿½cnico de Soporte', 1),
 ('Especialista en Recursos Humanos', 1),
 ('Marketing', 1),
 ('Ventas', 1),
-('Científico de Datos', 1);
+('Cientï¿½fico de Datos', 1);
 
 INSERT INTO Empleado(nombres, apellidos, fecha_contratacion, tipo_contrato, puesto, dpi_pasaporte, carnet_igss, carnet_irtra, fecha_nacimiento, numero_telefono, correo_electronico, fk_id_oficina, fk_id_profesion, fk_id_departamento, fk_id_rol, fk_id_estado, fk_id_empresa) 
 VALUES ('Milton', 'Lopez', '2024-07-23', 'Contrato Indefinido', 'Informatica', '2955334851006', '201364483588', '2955334851006', '2002-04-28', '59541235', 'milton@gmail.com', 1, 1, 1, 1, 1, 1);
 
-select * from Empleado
+CREATE PROCEDURE sp_login
+    @correo NVARCHAR(255),
+    @contrasena NVARCHAR(64)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        u.id_usuario AS ID,
+        u.correo AS email,
+        e.nombres + ' ' + e.apellidos AS username,
+        em.id_empresa,
+        em.nombre AS empresa
+    FROM 
+        Usuario u
+        INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado
+        INNER JOIN Empresa em ON u.fk_id_empresa = em.id_empresa
+    WHERE 
+        u.correo = @correo 
+        AND u.contrasena = @contrasena;  
+END
+
+CREATE PROCEDURE sp_listar_usuarios
+    @SearchTerm NVARCHAR(255) = NULL,
+    @Offset INT = 0,
+    @RowsPerPage INT = 20
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        u.id_usuario AS ID,
+        u.correo AS email,
+        e.nombres + ' ' + e.apellidos AS username,
+        em.id_empresa,
+        em.nombre AS empresa
+    FROM 
+        Usuario u
+        INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado
+        INNER JOIN Empresa em ON u.fk_id_empresa = em.id_empresa
+    WHERE 
+        (@SearchTerm IS NULL OR
+        u.correo LIKE '%' + @SearchTerm + '%' OR
+        e.nombres + ' ' + e.apellidos LIKE '%' + @SearchTerm + '%' OR
+        u.id_usuario LIKE '%' + @SearchTerm + '%')
+    ORDER BY 
+        u.id_usuario
+    OFFSET @Offset ROWS 
+    FETCH NEXT @RowsPerPage ROWS ONLY;
+END
 

@@ -9,3 +9,4 @@ define('DB_NAME', 'NominaConsulting');
 define('APP_NAME', 'Nomina-Consulting');
 define('APP_VERSION', '1.0.0');
 ?>
+
