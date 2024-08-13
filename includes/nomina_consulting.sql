@@ -71,7 +71,7 @@ CREATE TABLE Empleado (
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
     correo NVARCHAR(100) NOT NULL,
-    contrasena NVARCHAR(255) NOT NULL,
+    contrasena VARBINARY(64) NOT NULL,
     fk_id_empleado INT NOT NULL,
     fk_id_empresa INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado),
@@ -285,27 +285,57 @@ INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
 INSERT INTO Empleado(nombres, apellidos, fecha_contratacion, tipo_contrato, puesto, dpi_pasaporte, carnet_igss, carnet_irtra, fecha_nacimiento, numero_telefono, correo_electronico, fk_id_oficina, fk_id_profesion, fk_id_departamento, fk_id_rol, fk_id_estado, fk_id_empresa) 
 VALUES ('Milton', 'Lopez', '2024-07-23', 'Contrato Indefinido', 'Informatica', '2955334851006', '201364483588', '2955334851006', '2002-04-28', '59541235', 'milton@gmail.com', 1, 1, 1, 1, 1, 1);
 
+
 CREATE PROCEDURE sp_login
     @correo NVARCHAR(255),
-    @contrasena NVARCHAR(64)
+    @contrasena NVARCHAR(255)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT 
-        u.id_usuario AS ID,
-        u.correo AS email,
-        e.nombres + ' ' + e.apellidos AS username,
-        em.id_empresa,
-        em.nombre AS empresa
-    FROM 
-        Usuario u
-        INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado
-        INNER JOIN Empresa em ON u.fk_id_empresa = em.id_empresa
-    WHERE 
-        u.correo = @correo 
-        AND u.contrasena = @contrasena;  
+    DECLARE @contrasenaBD VARBINARY(64);
+    DECLARE @hashedContrasena VARBINARY(64);
+
+    -- Obtener la contraseña almacenada en la base de datos
+    SELECT @contrasenaBD = contrasena
+    FROM Usuario
+    WHERE correo = @correo;
+
+    -- Verificar si la contraseña en la base de datos es NULL (usuario no encontrado)
+    IF @contrasenaBD IS NULL
+    BEGIN
+        RAISERROR('Usuario no encontrado.', 16, 1);
+        RETURN;
+    END
+
+    -- Encriptar la contraseña proporcionada para compararla
+    SET @hashedContrasena = HASHBYTES('SHA2_256', @contrasena);
+
+    -- Comparar la contraseña proporcionada (encriptada) con la almacenada
+    IF @hashedContrasena = @contrasenaBD
+    BEGIN
+        -- Si las contraseñas coinciden, devolver los detalles del usuario
+        SELECT 
+            u.id_usuario AS ID,
+            u.correo AS email,
+            e.nombres + ' ' + e.apellidos AS username,
+            em.id_empresa,
+            em.nombre AS empresa
+        FROM 
+            Usuario u
+            INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado
+            INNER JOIN Empresa em ON u.fk_id_empresa = em.id_empresa
+        WHERE 
+            u.correo = @correo;
+    END
+    ELSE
+    BEGIN
+        -- Si las contraseñas no coinciden, devolver un error
+        RAISERROR('Las credenciales no coinciden.', 16, 1);
+    END
 END
+GO
+
 
 CREATE PROCEDURE sp_listar_usuarios
     @SearchTerm NVARCHAR(255) = NULL,
@@ -336,3 +366,53 @@ BEGIN
     FETCH NEXT @RowsPerPage ROWS ONLY;
 END
 
+
+CREATE PROCEDURE sp_cambiar_contra
+    @id_usuario INT,
+    @nueva_contrasena NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Encriptar la nueva contraseña usando SHA2_256
+    DECLARE @hashedContrasena VARBINARY(64);
+    SET @hashedContrasena = HASHBYTES('SHA2_256', @nueva_contrasena);
+
+    -- Actualizar la contraseña del usuario en la tabla con el tipo de dato VARBINARY
+    UPDATE Usuario
+    SET contrasena = @hashedContrasena
+    WHERE id_usuario = @id_usuario;
+    
+    -- Comprobación básica para asegurarse de que la actualización fue exitosa
+    IF @@ROWCOUNT = 0
+    BEGIN
+        RAISERROR('No se pudo cambiar la contraseña. Usuario no encontrado.', 16, 1);
+    END
+END
+GO
+
+
+CREATE PROCEDURE sp_registrar_usuario
+    @correo NVARCHAR(255),
+    @contrasena NVARCHAR(255),
+    @fk_id_empleado INT,
+    @fk_id_empresa INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Encriptar la contraseña usando SHA2_256
+    DECLARE @hashedContrasena VARBINARY(64);
+    SET @hashedContrasena = HASHBYTES('SHA2_256', @contrasena);
+
+    -- Insertar el nuevo usuario con la contraseña encriptada
+    INSERT INTO Usuario (correo, contrasena, fk_id_empleado, fk_id_empresa)
+    VALUES (@correo, @hashedContrasena, @fk_id_empleado, @fk_id_empresa);
+
+    -- Comprobación básica para asegurarse de que la inserción fue exitosa
+    IF @@ROWCOUNT = 0
+    BEGIN
+        RAISERROR('No se pudo registrar el usuario.', 16, 1);
+    END
+END
+GO
