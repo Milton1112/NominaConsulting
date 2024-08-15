@@ -83,8 +83,92 @@ function enviarCorreoContrasena($to, $contrasena, $nombreUsuario) {
 
     $mail->isHTML(true);
     $mail->CharSet = 'UTF-8';
-    $mail->Subject = "[Nomina Solidarista] Se cambió tu contraseña";
-    $mail->Body = "Hola " . $nombreUsuario . "<br><br>Su contraseña se estableció correctamente.<br><br>Nueva contraseña: " . $contrasena . "<br><br>Si no intentó iniciar sesión en su cuenta, su contraseña puede estar comprometida.<br><br>Visite: <a href='http://nominasolidarista.wuaze.com/recoverpassword.php'>http://nominasolidarista.wuaze.com/recoverpassword.php</a> para crear una contraseña nueva y segura para su cuenta de Nomina Solidarista.<br><br>Gracias,<br>El equipo de Nomina Solidarista";
+    $mail->Subject = "[Nomina-Consulting] Se cambió tu contraseña";
+    $mail->Body = "
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #113069;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            color: #ffffff;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+            width:80%;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            margin: 0 0 15px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            color: #ffffff;
+            background-color: #113069;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #cccccc;
+            text-align: center;
+            font-size: 14px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <img src='https://firebasestorage.googleapis.com/v0/b/eroma-quiker.appspot.com/o/logo.png?alt=media&token=c7ec3188-c9aa-41a8-b614-c88fc5809b1a' alt='Logo de la empresa' class='logo'>
+            <h1>¡Bienvenido a Nomina-Consulting!</h1>
+        </div>
+        <div class='content'>
+            <p>Hola <strong>" . $nombreUsuario . "</strong>,</p>
+            <p>Su contraseña se estableció correctamente.</p>
+            <p><strong>Nueva contraseña:</strong> " . $contrasena . "</p>
+            <p>Si no solicitó restablecer la contraseña, su contraseña puede estar comprometida.</p>
+            <p>Por favor, visite el siguiente enlace para crear una contraseña nueva y segura para su cuenta de Nomina-Consulting:</p>
+            <p><a href='http://nominasolidarista.wuaze.com/recoverpassword.php' class='button'>Restablecer Contraseña</a></p>
+        </div>
+        <div class='footer'>
+            <p>Gracias,<br>El equipo de Nomina-Consulting</p>
+        </div>
+    </div>
+</body>
+</html>
+";
+
 
     try {
         $mail->send();

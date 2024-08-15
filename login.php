@@ -31,7 +31,7 @@
                     <button type="submit" name="login" class="login-btn btn btn-primary">Iniciar sesión</button>
 
                     <div class="center-form mb-3">
-                        <button type="button" class="recover-pass btn">¿Olvidaste la contraseña?</button>
+                        <a href="modules/restablecer_contrasena.php" class="recover-pass btn">¿Olvidaste la contraseña?</a>
                     </div>
                 </nav>
             </nav>
@@ -47,6 +47,13 @@
 <?php
 include_once 'includes/db_connect.php';
 
+// Verifica si la función ya existe antes de declararla
+if (!function_exists('sanitizeInput')) {
+    function sanitizeInput($data) {
+        return htmlspecialchars(stripslashes(trim($data)));
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     login(); // Llamar a la función de login cuando se envíe el formulario
 }
@@ -59,39 +66,31 @@ function login(){
     // Obtener la conexión a la base de datos
     $conn = getConnection();
     
-    // Encriptar la contraseña antes de enviarla al procedimiento almacenado
-    $hashed_password = hash('sha256', $password);
-    
-    // Preparar la llamada al procedimiento almacenado
+    // No se encripta la contraseña aquí porque ya se maneja en el procedimiento almacenado
     $sql = "{call sp_login(?, ?)}";
     $params = array(
         array(&$email, SQLSRV_PARAM_IN),
-        array(&$hashed_password, SQLSRV_PARAM_IN)
+        array(&$password, SQLSRV_PARAM_IN)
     );
     
     // Ejecutar la consulta
     $stmt = sqlsrv_query($conn, $sql, $params);
     
     if ($stmt === false) {
+        echo '<script>alert("Error al intentar iniciar sesión. Por favor, intente más tarde.");</script>';
         die(print_r(sqlsrv_errors(), true));
     }
     
     // Verificar si el usuario fue encontrado
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if ($row) {
-        // Usuario encontrado
         echo '<script>alert("Inicio de sesión exitoso, bienvenido ' . $row['username'] . '");</script>';
     } else {
-        // Usuario no encontrado
         echo '<script>alert("Credenciales incorrectas, por favor verifica e intenta nuevamente.");</script>';
     }
     
-    // Cerrar la declaración y la conexión
     sqlsrv_free_stmt($stmt);
     sqlsrv_close($conn);
 }
-
-function sanitizeInput($data) {
-    return htmlspecialchars(stripslashes(trim($data)));
-}
 ?>
+
