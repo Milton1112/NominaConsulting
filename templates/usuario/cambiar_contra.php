@@ -168,8 +168,6 @@ function enviarCorreoContrasena($to, $contrasena, $nombreUsuario) {
 </body>
 </html>
 ";
-
-
     try {
         $mail->send();
         echo '<script>alert("Se ha restablecido la contraseña y enviado por correo electrónico."); window.location.href = "../../usuarios.php";</script>';

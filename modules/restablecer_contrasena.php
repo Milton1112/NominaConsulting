@@ -14,6 +14,7 @@
         </header>        
 
         <nav class="container">
+        <form action="" method="POST">
             <nav class="card-nav">
                 <nav class="card-gray">
                     <img class="logo" src="../assets/images/logo.png">
@@ -26,13 +27,52 @@
                 </nav>
 
                 <nav class="container-buttom">
-                    <a href="../login.php" class="cancel-btn btn btn-secondary">Cancel</a>
-                    <button type="button" class=" send-btn btn btn-primary">Restablecer contraseña</button>
+                    <a href="../login.php" class="cancel-btn btn">Cancel</a>
+                    <button type="submit" class="send-btn btn">Restablecer contraseña</button>
 
                 </nav>
 
             </nav>
+            </form>
         </nav>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     </body>
 </html>
+
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST['email'];
+
+    // Incluir la conexión a la base de datos
+    include_once '../includes/db_connect.php';
+
+    // Obtener la conexión
+    $conn = getConnection();
+
+    // Verificar si el correo existe y obtener el ID del usuario
+    $sql = "SELECT u.id_usuario, u.correo, e.nombres + ' ' + e.apellidos AS username FROM Usuario u INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleadoWHERE correo = ?";
+    $params = array($email);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    if ($stmt === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+
+    // Comprobar si el correo electrónico existe en la base de datos
+    if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        // Obtener el ID del usuario
+        $userId = $row['id_usuario'];
+        // Redirigir a la página de enviar enlace de restablecimiento de contraseña con el ID del usuario
+        //header("Location: /NOMINA-CONSULTING/templates/usuario/enviar_link_contra.php?id=" . urlencode($userId));
+        //exit();
+    } else {
+        echo "<div class='alert alert-danger text-center'>El correo no existe en la base de datos.</div>";
+    }
+
+    // Cerrar la conexión
+    sqlsrv_free_stmt($stmt);
+    sqlsrv_close($conn);
+}
+
+
+?>
