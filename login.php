@@ -6,6 +6,7 @@
     <title>Nomina-Consulting</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="assets/css/global.css">
 </head>
 <body>
     <header>
@@ -46,45 +47,45 @@
 
 <?php
 include_once 'includes/db_connect.php';
+include_once 'includes/functions.php'; // Asegúrate de incluir las funciones
 
-// Verifica si la función ya existe antes de declararla
-if (!function_exists('sanitizeInput')) {
-    function sanitizeInput($data) {
-        return htmlspecialchars(stripslashes(trim($data)));
-    }
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Iniciar sesión solo si no está activa
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])) {
     login(); // Llamar a la función de login cuando se envíe el formulario
 }
 
-function login(){
-    // Variables
+function login() {
     $email = sanitizeInput($_POST['email']);
     $password = sanitizeInput($_POST['password']);
     
-    // Obtener la conexión a la base de datos
     $conn = getConnection();
+    if ($conn === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
     
-    // No se encripta la contraseña aquí porque ya se maneja en el procedimiento almacenado
     $sql = "{call sp_login(?, ?)}";
     $params = array(
         array(&$email, SQLSRV_PARAM_IN),
         array(&$password, SQLSRV_PARAM_IN)
     );
     
-    // Ejecutar la consulta
     $stmt = sqlsrv_query($conn, $sql, $params);
-    
     if ($stmt === false) {
         echo '<script>alert("Error al intentar iniciar sesión. Por favor, intente más tarde.");</script>';
         die(print_r(sqlsrv_errors(), true));
     }
     
-    // Verificar si el usuario fue encontrado
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if ($row) {
-        echo '<script>alert("Inicio de sesión exitoso, bienvenido ' . $row['username'] . '");</script>';
+        // Si el login es exitoso, iniciar sesión y redirigir
+        $_SESSION['usuario_logueado'] = true;
+        $_SESSION['correo_usuario'] = $email;
+        
+        header("Location: index.php");
+        exit();
     } else {
         echo '<script>alert("Credenciales incorrectas, por favor verifica e intenta nuevamente.");</script>';
     }
@@ -93,4 +94,3 @@ function login(){
     sqlsrv_close($conn);
 }
 ?>
-

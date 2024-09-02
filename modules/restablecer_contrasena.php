@@ -28,7 +28,7 @@
 
                 <nav class="container-buttom">
                     <a href="../login.php" class="cancel-btn btn">Cancel</a>
-                    <button type="submit" class="send-btn btn">Restablecer contraseña</button>
+                    <button type="submit" class="send-btn btn">Buscar</button>
 
                 </nav>
 
@@ -40,39 +40,49 @@
 </html>
 
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
 
-    // Incluir la conexión a la base de datos
-    include_once '../includes/db_connect.php';
+// Incluir la conexión a la base de datos
+ include_once '../includes/db_connect.php';
 
-    // Obtener la conexión
-    $conn = getConnection();
 
-    // Verificar si el correo existe y obtener el ID del usuario
-    $sql = "SELECT u.id_usuario, u.correo, e.nombres + ' ' + e.apellidos AS username FROM Usuario u INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleadoWHERE correo = ?";
-    $params = array($email);
-    $stmt = sqlsrv_query($conn, $sql, $params);
+function restablecerContrasena() {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $email = $_POST['email'];
 
-    if ($stmt === false) {
-        die(print_r(sqlsrv_errors(), true));
+        // Obtener la conexión
+        $conn = getConnection();
+
+        // Verificar si la conexión es válida
+        if ($conn === false || $conn === null) {
+            die("Error en la conexión a la base de datos: " . print_r(sqlsrv_errors(), true));
+        }
+
+        // Verificar si el correo existe y obtener el ID del usuario
+        $sql = "SELECT u.id_usuario, u.correo, e.nombres + ' ' + e.apellidos AS username 
+                FROM Usuario u 
+                INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado 
+                WHERE u.correo = ?";
+        $params = array($email);
+        $stmt = sqlsrv_query($conn, $sql, $params);
+
+        if ($stmt === false) {
+            die(print_r(sqlsrv_errors(), true));
+        }
+
+        // Comprobar si el correo electrónico existe en la base de datos
+        if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            $userId = $row['id_usuario'];
+            // Redirigir a la página de enviar enlace de restablecimiento de contraseña con el ID del usuario
+            header("Location: /NOMINA-CONSULTING/templates/usuario/cambiar_contrasena.php?id=" . urlencode($userId));
+            exit();
+        } else {
+            echo "<div class='alert alert-danger text-center'>El correo no existe en la base de datos.</div>";
+        }
+
+        sqlsrv_free_stmt($stmt);
+        sqlsrv_close($conn);
     }
-
-    // Comprobar si el correo electrónico existe en la base de datos
-    if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-        // Obtener el ID del usuario
-        $userId = $row['id_usuario'];
-        // Redirigir a la página de enviar enlace de restablecimiento de contraseña con el ID del usuario
-        //header("Location: /NOMINA-CONSULTING/templates/usuario/enviar_link_contra.php?id=" . urlencode($userId));
-        //exit();
-    } else {
-        echo "<div class='alert alert-danger text-center'>El correo no existe en la base de datos.</div>";
-    }
-
-    // Cerrar la conexión
-    sqlsrv_free_stmt($stmt);
-    sqlsrv_close($conn);
 }
 
-
+restablecerContrasena();
 ?>

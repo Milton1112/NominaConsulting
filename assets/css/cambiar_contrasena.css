@@ -29,6 +29,12 @@ header {
     margin-top: 50px; 
 }
 
+.container-input2{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .card-nav{
     width: 1380px;
     height: 656px;
@@ -61,6 +67,12 @@ header {
     width: 500px;
     height: 65px;
     margin-top: 40px;
+}
+
+.input-email2{
+    width: 500px;
+    height: 65px;
+    margin-top: 10px;
 }
 
 .container-buttom{
@@ -126,6 +138,12 @@ header {
         align-items: center;
         margin-top: 50px; 
     }
+
+    .container-input{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     
     .card-nav{
         width: 984px;
@@ -156,6 +174,12 @@ header {
     }
     
     .input-email{
+        width: 500px;
+        height: 65px;
+        margin-top: 40px;
+    }
+
+    .input-email2{
         width: 500px;
         height: 65px;
         margin-top: 40px;
@@ -215,7 +239,14 @@ header {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 20px; 
+        margin-top: -20px;
+    }
+
+    .container-input2{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: -10px;
     }
     
     .card-nav{
@@ -247,6 +278,11 @@ header {
     }
     
     .input-email{
+        width: 300px;
+        height: 45px;
+    }
+
+    .input-email2{
         width: 300px;
         height: 45px;
     }
