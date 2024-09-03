@@ -74,7 +74,7 @@ function login() {
     
     $stmt = sqlsrv_query($conn, $sql, $params);
     if ($stmt === false) {
-        echo '<script>alert("Error al intentar iniciar sesión. Por favor, intente más tarde.");</script>';
+        echo '<script>alert("Crendenciales incorrectas, por favor verifica e intenta nuevamente.");</script>';
         die(print_r(sqlsrv_errors(), true));
     }
     

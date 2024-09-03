@@ -1,7 +1,8 @@
 <?php
 include_once 'includes/db_connect.php';
 
-$rowsPerPage = 20;  // Definir el número de filas por página
+
+$rowsPerPage = 20;
 
 function getUsers($searchTerm = null, $page = 1, $rowsPerPage = 20) {
     $conn = getConnection();
@@ -31,6 +32,7 @@ function getUsers($searchTerm = null, $page = 1, $rowsPerPage = 20) {
 
     return $users;
 }
+
 
 $searchTerm = isset($_GET['search']) ? sanitizeInput($_GET['search']) : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
