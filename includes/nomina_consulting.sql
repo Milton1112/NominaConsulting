@@ -1,3 +1,4 @@
+
 -- Creacion de tablas
 CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
@@ -22,10 +23,6 @@ CREATE TABLE Rol(
     nombre NVARCHAR(20) NOT NULL,
 );
 
-CREATE TABLE Expediente(
-    id_expediente INT IDENTITY(1,1) PRIMARY KEY,
-    documento NVARCHAR(255) NOT NULL,
-);
 
 CREATE TABLE Estado(
     id_estado INT IDENTITY(1,1) PRIMARY KEY,
@@ -56,16 +53,21 @@ CREATE TABLE Empleado (
     fk_id_profesion INT NOT NULL,
     fk_id_departamento INT NOT NULL,
     fk_id_rol INT NOT NULL,
-    fk_id_expediente INT,
     fk_id_estado INT NOT NULL,
     fk_id_empresa INT NOT NULL,
     FOREIGN KEY (fk_id_profesion) REFERENCES Profesion(id_profesion),
     FOREIGN KEY (fk_id_oficina) REFERENCES Oficina(id_oficina),
     FOREIGN KEY (fk_id_departamento) REFERENCES Departamento(id_departamento),
     FOREIGN KEY (fk_id_rol) REFERENCES Rol(id_rol),
-    FOREIGN KEY (fk_id_expediente) REFERENCES Expediente(id_expediente),
     FOREIGN KEY (fk_id_estado) REFERENCES Estado(id_estado),
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
+);
+
+CREATE TABLE Expediente(
+    id_expediente INT IDENTITY(1,1) PRIMARY KEY,
+    documento NVARCHAR(255) NOT NULL,
+    fk_id_empleado INT,
+    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
 
 CREATE TABLE Usuario (
@@ -244,16 +246,16 @@ INSERT INTO Departamento(nombre) VALUES
 ('Izabal'),
 ('Jalapa'),
 ('Jutiapa'),
-('Pet�n'),
+('Petén'),
 ('Quetzaltenango'),
-('Quich�'),
+('Quiché'),
 ('Retalhuleu'),
-('Sacatep�quez'),
+('Sacatepéquez'),
 ('San Marcos'),
 ('Santa Rosa'),
-('Solol�'),
-('Suchitep�quez'),
-('Totonicap�n'),
+('Sololá'),
+('Suchitepéquez'),
+('Totonicapán'),
 ('Zacapa');
 
 --Estado
@@ -269,18 +271,18 @@ INSERT INTO Estado(nombre) VALUES
 INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
 ('Ingeniero', 1),
 ('Auditor', 1),
-('Dise�ador Gr�fico', 1),
+('Diseñador Gráfico', 1),
 ('Administrador', 1),
 ('Contador', 1),
 ('Programador', 1),
 ('Analista de Sistemas', 1),
 ('Consultor', 1),
 ('Gerente de Proyecto', 1),
-('T�cnico de Soporte', 1),
+('Técnico de Soporte', 1),
 ('Especialista en Recursos Humanos', 1),
 ('Marketing', 1),
 ('Ventas', 1),
-('Cient�fico de Datos', 1);
+('Científico de Datos', 1);
 
 INSERT INTO Empleado(nombres, apellidos, fecha_contratacion, tipo_contrato, puesto, dpi_pasaporte, carnet_igss, carnet_irtra, fecha_nacimiento, numero_telefono, correo_electronico, fk_id_oficina, fk_id_profesion, fk_id_departamento, fk_id_rol, fk_id_estado, fk_id_empresa) 
 VALUES ('Milton', 'Lopez', '2024-07-23', 'Contrato Indefinido', 'Informatica', '2955334851006', '201364483588', '2955334851006', '2002-04-28', '59541235', 'milton@gmail.com', 1, 1, 1, 1, 1, 1);
@@ -416,3 +418,44 @@ BEGIN
     END
 END
 GO
+
+--Crear empleado
+CREATE PROCEDURE sp_InsertarEmpleado
+    @Nombres NVARCHAR(100),
+    @Apellidos NVARCHAR(100),
+    @TipoContrato NVARCHAR(50),
+    @Puesto NVARCHAR(100),
+    @DpiPasaporte NVARCHAR(20),
+    @Salario DECIMAL(8,2),
+    @CarnetIgss NVARCHAR(20),
+    @CarnetIrtra NVARCHAR(20),
+    @FechaNacimiento DATE,
+    @CorreoElectronico NVARCHAR(100),
+    @Telefono NVARCHAR(20), 
+    @Expediente NVARCHAR(255),
+    @Fk_Id_Oficina INT,
+    @Fk_Id_Profesion INT,
+    @Fk_Id_Departamento INT,
+    @Fk_Id_Rol INT,
+    @Fk_Id_Estado INT,
+    @Fk_Id_Empresa INT
+AS
+BEGIN
+    -- Insertar el empleado en la tabla Empleado
+    INSERT INTO Empleado (nombres, apellidos, fecha_contratacion, tipo_contrato, puesto, dpi_pasaporte, carnet_igss, carnet_irtra, fecha_nacimiento, correo_electronico, 
+                          numero_telefono, fk_id_oficina, fk_id_profesion, fk_id_departamento, fk_id_rol, fk_id_estado, fk_id_empresa) 
+    VALUES (@Nombres, @Apellidos, GETDATE(), @TipoContrato, @Puesto, @DpiPasaporte, @CarnetIgss, @CarnetIrtra, @FechaNacimiento, @CorreoElectronico, 
+            @Telefono, @Fk_Id_Oficina, @Fk_Id_Profesion, @Fk_Id_Departamento, @Fk_Id_Rol, @Fk_Id_Estado, @Fk_Id_Empresa);
+
+    -- Obtener el ID del empleado recién insertado
+    DECLARE @NuevoIdEmpleado INT;
+    SET @NuevoIdEmpleado = SCOPE_IDENTITY();
+
+    -- Insertar el salario para el nuevo empleado
+    INSERT INTO Salario (salario_base, salario_anterior, fk_id_empleado) 
+    VALUES (@Salario, 0, @NuevoIdEmpleado);
+
+    -- Insertar el expediente del nuevo empleado
+    INSERT INTO Expediente (documento, fk_id_empleado)
+    VALUES (@Expediente, @NuevoIdEmpleado);
+END;

@@ -17,6 +17,29 @@ function SignIn() {
         exit();
     }
 }
+function SignIn2() {
+    if (isset($_SESSION['usuario_logueado']) && $_SESSION['usuario_logueado'] === true) {
+        // Si el usuario ha iniciado sesión, redirigir a index.php
+        header("Location: index.php");
+        exit();
+    } else {
+        // Si el usuario no ha iniciado sesión, redirigir a login.php
+        header("Location: ../../login.php");
+        exit();
+    }
+}
+
+function SignIn3() {
+    if (isset($_SESSION['usuario_logueado']) && $_SESSION['usuario_logueado'] === true) {
+        // Si el usuario ha iniciado sesión, redirigir a index.php
+        header("Location: index.php");
+        exit();
+    } else {
+        // Si el usuario no ha iniciado sesión, redirigir a login.php
+        header("Location: ../login.php");
+        exit();
+    }
+}
 
 // Cerrar sesión
 function SignOut() {

@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-user"></i> Empleado</a>
+                        <a class="nav-link" href="templates/empleado/empleado.php"><i class="fas fa-user"></i> Empleado</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="fas fa-store"></i> Tienda</a>
