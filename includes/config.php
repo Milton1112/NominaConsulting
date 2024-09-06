@@ -1,9 +1,9 @@
 <?php
 // Configuración de la base de datos
-define('DB_SERVER', 'Nomina-Consultingg.mssql.somee.com');
-define('DB_USERNAME', 'eacunap2024_SQLLogin_1');
-define('DB_PASSWORD', 'Holaque@#2');
-define('DB_NAME', 'Nomina-Consultingg');
+define('DB_SERVER', 'EACUNAp\\SQLEXPRESS');
+define('DB_USERNAME', 'sa');
+define('DB_PASSWORD', 'Holaque2');
+define('DB_NAME', 'NominaConsulting');
 
 // Configuración adicional si es necesario
 define('APP_NAME', 'Nomina-Consulting');
