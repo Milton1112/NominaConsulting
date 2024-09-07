@@ -59,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
             <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="templates/empleado/empleado.php"><i class="fas fa-user"></i> Empleado</a>
+                        <a class="nav-link" href="templates/empleado/empleado.php"><i class="fas fa-user-tie"></i> Empleado</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuario.php"><i class="fas fa-user"></i> usuario</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="fas fa-store"></i> Tienda</a>
@@ -75,6 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
             </form>
         </div>
     </nav>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 

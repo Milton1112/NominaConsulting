@@ -1,3 +1,18 @@
+/*delete DATABASE
+USE master;
+GO
+
+-- Asegurarse de que no hay conexiones activas a la base de datos
+ALTER DATABASE NominaConsulting
+SET SINGLE_USER
+WITH ROLLBACK IMMEDIATE;
+GO
+
+-- Eliminar la base de datos
+DROP DATABASE NominaConsulting;
+GO
+
+*/
 
 -- Creacion de tablas
 CREATE TABLE Empresa (
@@ -74,7 +89,7 @@ CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
     correo NVARCHAR(100) NOT NULL,
     contrasena VARBINARY(64) NOT NULL,
-    fk_id_empleado INT NOT NULL,
+    fk_id_empleado INT NOT NULL UNIQUE,
     fk_id_empresa INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado),
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)

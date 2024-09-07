@@ -1,5 +1,36 @@
 <?php
+// Incluir el archivo de conexión
 include_once 'includes/db_connect.php';
+include_once 'includes/functions.php';
+
+
+// Verificar si la sesión ya está activa antes de llamar a session_start()
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Inicia la sesión si no está ya activa
+}
+
+// Verificar si la sesión está activa
+if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== true) {
+    SignIn(); // Redirige al login si no está logueado
+}
+
+// Obtener la conexión
+$conn = getConnection();
+
+// Verificar si la conexión es válida
+if (!$conn) {
+    die("Error al conectar a la base de datos.");
+}
+
+// Función para liberar recursos y cerrar la conexión
+function cerrarConexion($stmts, $conn) {
+    foreach ($stmts as $stmt) {
+        if ($stmt !== false) {
+            sqlsrv_free_stmt($stmt);
+        }
+    }
+    sqlsrv_close($conn);
+}
 
 
 $rowsPerPage = 20;
@@ -123,8 +154,4 @@ $users = getUsers($searchTerm, $page, $rowsPerPage);
 </body>
 </html>
 
-<?php
-function sanitizeInput($data) {
-    return htmlspecialchars(stripslashes(trim($data)));
-}
-?>
+

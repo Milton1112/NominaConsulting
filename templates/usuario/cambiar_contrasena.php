@@ -137,12 +137,12 @@ function enviarCorreoContrasena($to, $nombreUsuario) {
     $mail->isSMTP();
     $mail->Host = 'smtp.gmail.com';
     $mail->SMTPAuth = true;
-    $mail->Username = 'nominaproyecto8@gmail.com';
-    $mail->Password = 'eacnroghrhztckjf';
+    $mail->Username = 'noreply.nomina.consulting@gmail.com';
+    $mail->Password = 'vfntiwpxbxnhvapu';
     $mail->SMTPSecure = 'ssl';
     $mail->Port = 465;
 
-    $mail->setFrom('nominaproyecto8@gmail.com');
+    $mail->setFrom('noreply.nomina.consulting@gmail.com');
     $mail->addAddress($to);
 
     $mail->isHTML(true);
