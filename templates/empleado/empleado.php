@@ -13,6 +13,8 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
     SignIn2(); // Redirige al login si no está logueado
 }
 
+$isNew = true;
+
 if (isset($_GET['id'])) {
     $id_empleado = $_GET['id'];
     $sql = "SELECT E.id_empleado, E.nombres, E.apellidos, E.fecha_contratacion,  E.tipo_contrato,
@@ -62,26 +64,27 @@ if (isset($_GET['id'])) {
 
         // fill values in the form fields
         echo "<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelector('[name=nombres]').value = '$nombres';
-        document.querySelector('[name=apellidos]').value = '$apellidos';
-        document.querySelector('[name=tipoContrato]').value = '$tipo_contrato';
-        document.querySelector('[name=puesto]').value = '$puesto';
-        document.querySelector('[name=dpiPasaporte]').value = '$dpi_pasaporte';
-        document.querySelector('[name=salario]').value = '$salario';
-        document.querySelector('[name=carnetIgss]').value = '$carnet_igss';
-        document.querySelector('[name=carnetIrtra]').value = '$carnet_irtra';
-        document.querySelector('[name=fechaNacimiento]').value = '$fecha_nacimiento';
-        document.querySelector('[name=correoElectronico]').value = '$correo_electronico';
-        document.querySelector('[name=numTelefono]').value = '$numero_telefono';
-        document.querySelector('[name=fkIdOficina]').value = '$fk_id_oficina';
-        document.querySelector('[name=fkIdProfesion]').value = '$fk_id_profesion';
-        document.querySelector('[name=fkIdDepartamento]').value = '$fk_id_departamento';
-        document.querySelector('[name=fkIdRol]').value = '$fk_id_rol';
-        document.querySelector('[name=fkIdEstado]').value = '$fk_id_estado';
-        document.querySelector('[name=fkIdEmpresa]').value = '$fk_id_empresa';
-    });
-</script>";
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelector('[name=nombres]').value = '$nombres';
+                document.querySelector('[name=apellidos]').value = '$apellidos';
+                document.querySelector('[name=tipoContrato]').value = '$tipo_contrato';
+                document.querySelector('[name=puesto]').value = '$puesto';
+                document.querySelector('[name=dpiPasaporte]').value = '$dpi_pasaporte';
+                document.querySelector('[name=salario]').value = '$salario';
+                document.querySelector('[name=carnetIgss]').value = '$carnet_igss';
+                document.querySelector('[name=carnetIrtra]').value = '$carnet_irtra';
+                document.querySelector('[name=fechaNacimiento]').value = '$fecha_nacimiento';
+                document.querySelector('[name=correoElectronico]').value = '$correo_electronico';
+                document.querySelector('[name=numTelefono]').value = '$numero_telefono';
+                document.querySelector('[name=fkIdOficina]').value = '$fk_id_oficina';
+                document.querySelector('[name=fkIdProfesion]').value = '$fk_id_profesion';
+                document.querySelector('[name=fkIdDepartamento]').value = '$fk_id_departamento';
+                document.querySelector('[name=fkIdRol]').value = '$fk_id_rol';
+                document.querySelector('[name=fkIdEstado]').value = '$fk_id_estado';
+                document.querySelector('[name=fkIdEmpresa]').value = '$fk_id_empresa';
+            });
+        </script>";
+        $isNew = false;
     }
 }
 
@@ -261,7 +264,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                         <div class="mb-3 row">
                             <label for="documento" class="form-label">Expediente adjunto</label>
                             <a href="<?php echo $documento; ?>" target="_blank">
-                                <button type="button" class="btn btn-danger">Ver Expediente</button>
+                                <button type="button" class="btn btn-sm btn-danger w-100">Ver Expediente</button>
                             </a>
                         </div>
                     <?php else : ?>
@@ -378,7 +381,12 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                             <div class="invalid-feedback">Por favor, selecciona una empresa.</div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Crear Empleado</button>
+
+                    <?php if ($isNew) : ?>
+                        <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Registrar Empleado</button>
+                    <?php else : ?>
+                        <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Empleado</button>
+                    <?php endif; ?>
                 </form>
             </div>
         </div>
