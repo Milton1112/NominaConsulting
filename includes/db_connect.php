@@ -22,5 +22,3 @@ function getConnection() {
     global $conn;
     return $conn;
 }
-?>
-
