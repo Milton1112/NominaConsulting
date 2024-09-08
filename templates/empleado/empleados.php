@@ -105,7 +105,6 @@ if ($stmt === false) {
                             <th>#</th>
                             <th>Nombres</th>
                             <th>Apellidos</th>
-                            <th>Fecha Contratación</th>
                             <th>Puesto</th>
                             <th>DPI/Pasaporte</th>
                             <th>Teléfono</th>
@@ -122,7 +121,6 @@ if ($stmt === false) {
                                     <td class="text-center fw-bold"><?php echo $row['id_empleado']; ?></td>
                                     <td class="fw-bold text-primary"><?php echo $row['nombres']; ?></td>
                                     <td><?php echo $row['apellidos']; ?></td>
-                                    <td><?php echo $row['fecha_contratacion']->format('Y-m-d'); ?></td>
                                     <td><?php echo $row['puesto']; ?></td>
                                     <td><?php echo $row['dpi_pasaporte']; ?></td>
                                     <td><?php echo $row['numero_telefono']; ?></td>
@@ -130,7 +128,7 @@ if ($stmt === false) {
                                     <td><?php echo $row['profesion']; ?></td>
                                     <td><?php echo $row['departamento']; ?></td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='empleado.php?id=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Editar
                                         </button>
                                         <button class="btn btn-danger btn-sm rounded-pill px-3" onclick="window.location.href='eliminar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
