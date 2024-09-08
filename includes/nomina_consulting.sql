@@ -1,18 +1,14 @@
 /*delete DATABASE
 USE master;
 GO
+*/
 
 -- Asegurarse de que no hay conexiones activas a la base de datos
-ALTER DATABASE NominaConsulting
-SET SINGLE_USER
-WITH ROLLBACK IMMEDIATE;
+CREATE DATABASE NominaConsulting
+USE NominaConsulting
 GO
 
--- Eliminar la base de datos
-DROP DATABASE NominaConsulting;
-GO
 
-*/
 
 -- Creacion de tablas
 CREATE TABLE Empresa (
@@ -225,6 +221,8 @@ CREATE TABLE PolizaContable(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+
+
 --Llenar tablas
 --Oficina
 INSERT INTO Empresa(nombre, fecha_inicio) VALUES
@@ -235,7 +233,7 @@ INSERT INTO Oficina(nombre, fk_id_empresa) VALUES
 ('Recursos Humanos', 1),
 ('Contabilidad', 1), 
 ('Ventas', 1),
-('Producci�n', 1),
+('Producción', 1),
 ('TI', 1),
 ('Marketing', 1),
 ('Servicio al Cliente', 1);
@@ -303,7 +301,7 @@ INSERT INTO Empleado(nombres, apellidos, fecha_contratacion, tipo_contrato, pues
 VALUES ('Milton', 'Lopez', '2024-07-23', 'Contrato Indefinido', 'Informatica', '2955334851006', '201364483588', '2955334851006', '2002-04-28', '59541235', 'milton@gmail.com', 1, 1, 1, 1, 1, 1);
 
 
-CREATE PROCEDURE sp_login
+CREATE OR ALTER PROCEDURE sp_login
     @correo NVARCHAR(255),
     @contrasena NVARCHAR(255)
 AS
@@ -354,7 +352,7 @@ END
 GO
 
 
-CREATE PROCEDURE sp_listar_usuarios
+CREATE OR ALTER PROCEDURE sp_listar_usuarios
     @SearchTerm NVARCHAR(255) = NULL,
     @Offset INT = 0,
     @RowsPerPage INT = 20
@@ -384,7 +382,7 @@ BEGIN
 END
 
 
-CREATE PROCEDURE sp_cambiar_contra
+CREATE OR ALTER PROCEDURE sp_cambiar_contra
     @id_usuario INT,
     @nueva_contrasena NVARCHAR(255)
 AS
@@ -409,7 +407,7 @@ END
 GO
 
 
-CREATE PROCEDURE sp_registrar_usuario
+CREATE OR ALTER PROCEDURE sp_registrar_usuario
     @correo NVARCHAR(255),
     @contrasena NVARCHAR(255),
     @fk_id_empleado INT,
@@ -435,7 +433,7 @@ END
 GO
 
 --Crear empleado
-CREATE PROCEDURE sp_InsertarEmpleado
+CREATE OR ALTER PROCEDURE sp_InsertarEmpleado
     @Nombres NVARCHAR(100),
     @Apellidos NVARCHAR(100),
     @TipoContrato NVARCHAR(50),
@@ -473,4 +471,5 @@ BEGIN
     -- Insertar el expediente del nuevo empleado
     INSERT INTO Expediente (documento, fk_id_empleado)
     VALUES (@Expediente, @NuevoIdEmpleado);
-END;
+END
+GO

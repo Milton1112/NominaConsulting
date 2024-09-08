@@ -13,6 +13,8 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
     SignIn2(); // Redirige al login si no está logueado
 }
 
+$user = $_SESSION['correo_usuario'];
+
 // Obtener la conexión
 $conn = getConnection();
 
@@ -22,7 +24,8 @@ if (!$conn) {
 }
 
 // Función para liberar recursos y cerrar la conexión
-function cerrarConexion($stmts, $conn) {
+function cerrarConexion($stmts, $conn)
+{
     foreach ($stmts as $stmt) {
         if ($stmt !== false) {
             sqlsrv_free_stmt($stmt);
@@ -58,10 +61,11 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>NOMINA-CONSULTING</title>
+    <title>Nuevo Empleado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/global.css">
     <link rel="stylesheet" href="../../assets/css/registrar_empleado.css">
@@ -72,7 +76,17 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
             if (!form.checkValidity()) {
                 event.preventDefault(); // Evitar el envío del formulario
                 event.stopPropagation();
-                alert('Por favor, completa todos los campos antes de enviar el formulario.');
+
+                // Mostrar mensaje de error
+                const alertError = document.getElementById('alertError');
+                const textAlert = document.getElementById('textAlert');
+                textAlert.textContent = 'Por favor, completa todos los campos.';
+                alertError.style.display = 'block'; // Mostrar el mensaje de error
+            } else {
+
+                // ocultar la alerta
+                const alertError = document.getElementById('alertError');
+                alertError.style.display = 'none';
             }
             form.classList.add('was-validated'); // Agrega clase para mostrar los estilos de validación
         }
@@ -82,41 +96,54 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
+
 <body>
-    <header class="text-center py-3">
-        <h1>NOMINA-CONSULTING</h1>
+    <header class="bg-primary text-white py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <!-- Botón de Regresar con icono -->
+            <a href="../../index.php" class="btn btn-outline-light d-flex align-items-center">
+                <i class="bi bi-arrow-left-circle me-2"></i> Regresar
+            </a>
+            <!-- Título centrado -->
+            <div class="text-center flex-grow-1">
+                <h1 class="fs-3 mb-0 fw-bold">Creación de Empleado</h1>
+            </div>
+        </div>
     </header>
 
-    <div class="container mt-5">
-        <div class="card mx-auto" style="max-width: 600px;">
-            <div class="card-header text-center">
-                <h4>Crear Empleado</h4>
+    <div class="container mt-5 mb-5">
+        <div class="card mx-auto rounded" style="max-width: 600px;">
+            <div class="card-header text-center bg-primary text-white rounded-top">
+                Formulario de Empleado
+            </div>
+            <div class="alert alert-danger p-2 mt-2" role="alert" id="alertError" style="display: none;">
+                <p id="textAlert" class="text-center"></p>
             </div>
             <div class="card-body">
                 <form action="" method="POST" novalidate>
                     <!-- Nombres y Apellidos -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="nombres" class="form-label">Nombre</label>
                             <input type="text" class="form-control" name="nombres" placeholder="Ingrese los nombres" required>
                             <div class="invalid-feedback">Por favor, ingresa el nombre.</div>
                         </div>
-                        <div class="middle-div mb-3">
+                        <div class="col-md-6">
                             <label for="apellidos" class="form-label">Apellido</label>
                             <input type="text" class="form-control" name="apellidos" placeholder="Ingrese los apellidos" required>
                             <div class="invalid-feedback">Por favor, ingresa el apellido.</div>
                         </div>
                     </div>
-                    
+
                     <!-- Tipo de Contrato y Puesto -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="tipoContrato" class="form-label">Tipo de Contrato</label>
                             <input type="text" class="form-control" name="tipoContrato" placeholder="Ingrese tipo de contrato" required>
                             <div class="invalid-feedback">Por favor, ingresa el tipo de contrato.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="puesto" class="form-label">Puesto</label>
                             <input type="text" class="form-control" name="puesto" placeholder="Ingrese puesto" required>
                             <div class="invalid-feedback">Por favor, ingresa el puesto.</div>
@@ -124,13 +151,13 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                     </div>
 
                     <!-- DPI y Salario -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="dpiPasaporte" class="form-label">DPI/Pasaporte</label>
                             <input type="text" class="form-control" name="dpiPasaporte" placeholder="Ingrese DPI o Pasaporte" required>
                             <div class="invalid-feedback">Por favor, ingresa el DPI o Pasaporte.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="salario" class="form-label">Salario</label>
                             <input type="number" class="form-control" name="salario" placeholder="Ingrese el salario" required>
                             <div class="invalid-feedback">Por favor, ingresa el salario.</div>
@@ -138,19 +165,19 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                     </div>
 
                     <!-- IGSS y IRTRA -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="carnetIgss" class="form-label">Carnet IGSS</label>
                             <input type="number" class="form-control" name="carnetIgss" placeholder="Ingrese carnet IGSS" required>
                             <div class="invalid-feedback">Por favor, ingresa el carnet IGSS.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="carnetIrtra" class="form-label">Carnet IRTRA</label>
                             <input type="number" class="form-control" name="carnetIrtra" placeholder="Ingrese carnet del IRTRA" required>
                             <div class="invalid-feedback">Por favor, ingresa el carnet del IRTRA.</div>
                         </div>
                     </div>
-                    
+
                     <!-- Fecha de Nacimiento y Subida de CV -->
                     <div class="mb-3">
                         <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
@@ -160,33 +187,32 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="url_pdf" name="url_pdf" placeholder="No se ha cargado ningún archivo" required>
-                        <a class="input-group-text" onclick="loginpdf()">Subir CV</a>
+                        <a class="input-group-text bg-secondary text-white" onclick="loginpdf()">Subir CV</a>
                     </div>
 
-                    <div class="progress" style="height: 30px;">
+                    <div class="progress mb-3" style="height: 30px;">
                         <div id="uploadProgress" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             0%
                         </div>
                     </div>
 
                     <!-- Correo Electrónico y Teléfono -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="correoElectronico" class="form-label">Correo Electrónico</label>
                             <input type="email" class="form-control" name="correoElectronico" placeholder="Ingrese correo electrónico" required>
                             <div class="invalid-feedback">Por favor, ingresa un correo electrónico válido.</div>
                         </div>
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="numTelefono" class="form-label">Número de teléfono</label>
                             <input type="number" class="form-control" name="numTelefono" placeholder="Ingrese el número de teléfono" required>
                             <div class="invalid-feedback">Por favor, ingresa un número de teléfono.</div>
                         </div>
                     </div>
 
-                    <!-- Selectores dinámicos -->
-                    <!-- Oficina y Profesión -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <!-- Oficina, Profesión, Departamento, Rol -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdOficina" class="form-label">Oficina</label>
                             <select class="form-control" id="fkIdOficina" name="fkIdOficina" required>
                                 <option value="">Seleccione una oficina</option>
@@ -199,7 +225,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                             <div class="invalid-feedback">Por favor, selecciona una oficina.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdProfesion" class="form-label">Profesión</label>
                             <select class="form-control" id="fkIdProfesion" name="fkIdProfesion" required>
                                 <option value="">Seleccione una profesión</option>
@@ -214,8 +240,8 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                     </div>
 
                     <!-- Departamento y Rol -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdDepartamento" class="form-label">Departamento</label>
                             <select class="form-control" id="fkIdDepartamento" name="fkIdDepartamento" required>
                                 <option value="">Seleccione un departamento</option>
@@ -228,7 +254,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                             <div class="invalid-feedback">Por favor, selecciona un departamento.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdRol" class="form-label">Rol</label>
                             <select class="form-control" id="fkIdRol" name="fkIdRol" required>
                                 <option value="">Seleccione un rol</option>
@@ -243,8 +269,8 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                     </div>
 
                     <!-- Estado y Empresa -->
-                    <div class="input-group mb-3">
-                        <div class="mb-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdEstado" class="form-label">Estado</label>
                             <select class="form-control" id="fkIdEstado" name="fkIdEstado" required>
                                 <option value="">Seleccione un estado</option>
@@ -257,7 +283,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                             <div class="invalid-feedback">Por favor, selecciona un estado.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="col-md-6">
                             <label for="fkIdEmpresa" class="form-label">Empresa</label>
                             <select class="form-control" id="fkIdEmpresa" name="fkIdEmpresa" required>
                                 <option value="">Seleccione una empresa</option>
@@ -269,7 +295,6 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                             </select>
                             <div class="invalid-feedback">Por favor, selecciona una empresa.</div>
                         </div>
-
                     </div>
                     <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Crear Empleado</button>
                 </form>
@@ -283,7 +308,8 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 </body>
 
 <?php
-function verificarInfoEmpleado($conn) {
+function verificarInfoEmpleado($conn)
+{
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Capturar datos del formulario
         $nombres = $_POST["nombres"];
@@ -291,7 +317,7 @@ function verificarInfoEmpleado($conn) {
         $tipoContrato = $_POST["tipoContrato"];
         $puesto = $_POST["puesto"];
         $dpiPasaporte = $_POST["dpiPasaporte"];
-        $salario = (float)$_POST["salario"];  // Asegurarse de que es float
+        $salario = (double)$_POST["salario"];  // Asegurarse de que es float
         $carnetIgss = $_POST["carnetIgss"];
         $carnetIrtra = $_POST["carnetIrtra"];
         $fechaNacimiento = $_POST["fechaNacimiento"];
