@@ -69,15 +69,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="templates/empleado/empleados.php"><i class="fas fa-users"></i> Empleados</a>
-                            <a class="dropdown-item" href="templates/empleado/empleado.php"><i class="fas fa-user-plus"></i> Nuevo Registro</a>
-                            <a class="dropdown-item" href="templates/empleado/liquidacion.php"><i class="fas fa-file-invoice-dollar"></i> Liquidación</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Expediente</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Bono 14</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Aguinaldo</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Salario</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Anticipo</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Ausencia</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Expediente</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Horas Extras</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Liquidación</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Prestamos</a>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="usuario.php"><i class="fas fa-user"></i> Usuario</a>
+                    <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user"></i> Usuario
+                        </a>
+                        <div class="dropdown-menu" arial-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="usuarios.php"><i class="fas fa-user"></i> Usuario</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Cambiar Contraseña</a>
+                        </div>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#"><i class="fas fa-store"></i> Tienda</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-store"></i> Tienda
+                        </a>
+                        <div class="dropdown-menu" arial-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="#"><i class="fas fa-store"></i> Producto</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-store"></i> Venta</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-store"></i> Comisiones</a>
+                            <a class="dropdown-item" href="#"><i class="fas fa-store"></i> Bonificación</a>
+                        </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="fas fa-briefcase"></i> Empresa</a>

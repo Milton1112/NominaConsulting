@@ -1,8 +1,8 @@
 <?php
 // Configuración de la base de datos
-define('DB_SERVER', 'JSUHULA\UMGDB2');
-define('DB_USERNAME', 'sqladmin');
-define('DB_PASSWORD', '59548601Josias');
+define('DB_SERVER', 'EACUNAP\SQLEXPRESS');
+define('DB_USERNAME', 'sa');
+define('DB_PASSWORD', 'Holaque2');
 define('DB_NAME', 'NominaConsulting');
 
 // Configuración adicional si es necesario

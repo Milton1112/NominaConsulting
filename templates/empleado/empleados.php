@@ -9,6 +9,20 @@ if (!$conn) {
     die("Error al conectar a la base de datos.");
 }
 
+
+// Verificar si la sesión ya está activa antes de llamar a session_start()
+if (session_status() == PHP_SESSION_NONE) {
+    session_start(); // Inicia la sesión si no está ya activa
+}
+
+// Verificar si la sesión está activa
+if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== true) {
+    SignIn2(); // Redirige al login si no está logueado
+}
+
+
+
+
 // Consulta para obtener los empleados
 $sql = "SELECT E.id_empleado, E.nombres, E.apellidos, E.fecha_contratacion, 
         E.puesto, E.dpi_pasaporte, E.numero_telefono, E.correo_electronico, P.nombre AS profesion, D.nombre AS departamento
@@ -98,6 +112,11 @@ if ($stmt === false) {
 
     <div class="container-fluid mt-5 mb-5">
         <div class="mx-auto p-4 bg-white rounded">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Buscar con nombre, apellido, DPI/Pasaporte, Puesto" aria-label="Username" aria-describedby="basic-addon1">
+            <button type="button" class="btn btn-primary">Buscar</button>
+            <a type="button" href="agregar_empleado.php" class="btn btn-outline-secondary">Agregar </a>
+        </div>
             <div class="table-responsive">
                 <table class="table table-hover table-borderless align-middle">
                     <thead class="bg-gradient bg-primary text-white rounded">
@@ -126,7 +145,7 @@ if ($stmt === false) {
                                     <td><?php echo $row['profesion']; ?></td>
                                     <td><?php echo $row['departamento']; ?></td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='empleado.php?id=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Editar
                                         </button>
                                     </td>
