@@ -473,3 +473,67 @@ BEGIN
     VALUES (@Expediente, @NuevoIdEmpleado);
 END
 GO
+
+-- Traer Empleados
+
+CREATE PROCEDURE sp_listar_empleados_con_filtro
+    @criterio NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        E.id_empleado, 
+        E.nombres, 
+        E.apellidos, 
+        E.fecha_contratacion, 
+        E.puesto, 
+        E.dpi_pasaporte, 
+        E.numero_telefono, 
+        E.correo_electronico, 
+        P.nombre AS profesion, 
+        D.nombre AS departamento
+    FROM 
+        Empleado E
+    INNER JOIN 
+        Profesion P ON E.fk_id_profesion = P.id_profesion
+    INNER JOIN 
+        Departamento D ON E.fk_id_departamento = D.id_departamento
+    WHERE
+        E.id_empleado LIKE '%' + @criterio + '%' 
+        OR E.nombres LIKE '%' + @criterio + '%' 
+        OR E.apellidos LIKE '%' + @criterio + '%' 
+        OR E.puesto LIKE '%' + @criterio + '%' 
+        OR E.numero_telefono LIKE '%' + @criterio + '%' 
+        OR E.correo_electronico LIKE '%' + @criterio + '%' 
+        OR P.nombre LIKE '%' + @criterio + '%' 
+        OR D.nombre LIKE '%' + @criterio + '%';
+END
+GO
+
+--expediten empleado
+ CREATE PROCEDURE sp_listar_expedientes_empleados
+    @criterio NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        E.id_empleado, 
+        E.nombres + ' ' + E.apellidos AS [Nombre completo], 
+        E.numero_telefono, 
+        E.correo_electronico, 
+        EX.documento
+    FROM 
+        Empleado E
+    INNER JOIN 
+        Expediente EX ON E.id_empleado = EX.fk_id_empleado
+    WHERE 
+        E.id_empleado LIKE '%' + @criterio + '%' 
+        OR E.nombres LIKE '%' + @criterio + '%' 
+        OR E.apellidos LIKE '%' + @criterio + '%' 
+        OR E.numero_telefono LIKE '%' + @criterio + '%' 
+        OR E.correo_electronico LIKE '%' + @criterio + '%';
+END
+GO
+

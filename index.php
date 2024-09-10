@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="templates/empleado/empleados.php"><i class="fas fa-users"></i> Empleados</a>
-                            <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Expediente</a>
+                            <a class="dropdown-item" href="templates/expediente/expediente.php"><i class="fas fa-users"></i> Expediente</a>
                             <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Bono 14</a>
                             <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Aguinaldo</a>
                             <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Salario</a>

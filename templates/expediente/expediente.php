@@ -27,8 +27,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarEmpleado'])) {
     $criterio = $_POST['buscarEmpleado'];
 }
 
-// Procedimiento almacenado para listar empleados con filtro
-$sql = "{CALL sp_listar_empleados_con_filtro(?)}";
+// Procedimiento almacenado para listar expedientes con filtro
+$sql = "{CALL sp_listar_expedientes_empleados(?)}";
 $params = array(
     array($criterio, SQLSRV_PARAM_IN)
 );
@@ -47,7 +47,7 @@ if ($stmt === false) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lista de Empleados</title>
+    <title>Lista de Expedientes de Empleados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -77,7 +77,7 @@ if ($stmt === false) {
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Lista de Empleados</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Lista de Expedientes de Empleados</h1>
             </div>
         </div>
     </header>
@@ -86,7 +86,7 @@ if ($stmt === false) {
         <div class="mx-auto p-4 bg-white rounded">
             <form method="POST" action="">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, puesto, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
+                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, teléfono, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
                     <a href="agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
                 </div>
@@ -97,13 +97,10 @@ if ($stmt === false) {
                     <thead class="bg-gradient bg-primary text-white rounded">
                         <tr class="text-center">
                             <th>#</th>
-                            <th>Nombres</th>
-                            <th>Puesto</th>
-                            <th>DPI/Pasaporte</th>
+                            <th>Nombre completo</th>
                             <th>Teléfono</th>
                             <th>Email</th>
-                            <th>Profesión</th>
-                            <th>Departamento</th>
+                            <th>Documento del Expediente</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -112,15 +109,12 @@ if ($stmt === false) {
                             <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
                                 <tr class="shadow-sm rounded bg-light mb-2">
                                     <td class="text-center fw-bold"><?php echo $row['id_empleado']; ?></td>
-                                    <td class="fw-bold text-primary"><?php echo $row['nombres'] . ', ' . $row['apellidos']; ?></td>
-                                    <td><?php echo $row['puesto']; ?></td>
-                                    <td><?php echo $row['dpi_pasaporte']; ?></td>
+                                    <td class="fw-bold text-primary"><?php echo $row['Nombre completo']; ?></td>
                                     <td><?php echo $row['numero_telefono']; ?></td>
                                     <td><?php echo $row['correo_electronico']; ?></td>
-                                    <td><?php echo $row['profesion']; ?></td>
-                                    <td><?php echo $row['departamento']; ?></td>
+                                    <td><?php echo $row['documento']; ?></td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_expediente.php?id=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Editar
                                         </button>
                                     </td>
@@ -128,7 +122,7 @@ if ($stmt === false) {
                             <?php endwhile; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="11" class="text-center text-muted py-3">No se encontraron empleados</td>
+                                <td colspan="6" class="text-center text-muted py-3">No se encontraron expedientes</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
