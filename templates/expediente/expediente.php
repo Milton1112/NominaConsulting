@@ -100,7 +100,7 @@ if ($stmt === false) {
                             <th>Nombre completo</th>
                             <th>Teléfono</th>
                             <th>Email</th>
-                            <th>Documento del Expediente</th>
+                            <th>Expediente</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -112,10 +112,15 @@ if ($stmt === false) {
                                     <td class="fw-bold text-primary"><?php echo $row['Nombre completo']; ?></td>
                                     <td><?php echo $row['numero_telefono']; ?></td>
                                     <td><?php echo $row['correo_electronico']; ?></td>
-                                    <td><?php echo $row['documento']; ?></td>
+                                    <td class="text-center">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='view_expediente.php?exp=<?php echo $row['id_empleado']; ?>'">
+                                            <i class="fas fa-pencil-alt"></i> Ver CV
+                                            
+                                        </button>
+                                    </td>
                                     <td class="text-center">
                                         <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_expediente.php?id=<?php echo $row['id_empleado']; ?>'">
-                                            <i class="fas fa-pencil-alt"></i> Editar
+                                            <i class="fas fa-file"></i> Editar
                                         </button>
                                     </td>
                                 </tr>
