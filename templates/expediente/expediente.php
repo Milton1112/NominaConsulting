@@ -88,7 +88,6 @@ if ($stmt === false) {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, teléfono, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
-                    <a href="agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
                 </div>
             </form>
             

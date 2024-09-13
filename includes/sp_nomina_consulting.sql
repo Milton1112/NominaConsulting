@@ -280,3 +280,15 @@ BEGIN
 END
 GO
 
+--Actualizar
+
+CREATE PROCEDURE sp_update_expediente
+   @expediente NVARCHAR(255),
+   @id_empleado INT
+AS
+BEGIN
+    UPDATE Expediente
+	SET documento = @expediente
+	WHERE fk_id_empleado = @id_empleado
+END;
+   
