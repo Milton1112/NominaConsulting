@@ -241,9 +241,9 @@ function verificarActualizarEmpleado($conn) {
         $carnet_igss = $_POST["carnet_igss"];
         $carnet_irtra = $_POST["carnet_irtra"];
         
-        // Convertir fechas al formato adecuado YYYY-MM-DD
-        $fecha_contratacion = date('Y-m-d', strtotime($_POST["fecha_contratacion"]));
-        $fecha_nacimiento = date('Y-m-d', strtotime($_POST["fecha_nacimiento"]));
+        // Validar fechas: Convertir al formato adecuado o dejar como NULL
+        $fecha_contratacion = !empty($_POST["fecha_contratacion"]) ? date('Y-m-d', strtotime($_POST["fecha_contratacion"])) : NULL;
+        $fecha_nacimiento = !empty($_POST["fecha_nacimiento"]) ? date('Y-m-d', strtotime($_POST["fecha_nacimiento"])) : NULL;
 
         $correo_electronico = $_POST["correo_electronico"];
         $numero_telefono = $_POST["numero_telefono"];
@@ -252,31 +252,39 @@ function verificarActualizarEmpleado($conn) {
         $fk_id_rol = $_POST["fk_id_rol"];
         $fk_id_estado = $_POST["fk_id_estado"];
 
-        // Preparar la consulta
-        $sql = "UPDATE Empleado
-                SET nombres = ?, apellidos = ?, tipo_contrato = ?, puesto = ?, dpi_pasaporte = ?, carnet_igss = ?, carnet_irtra = ?, fecha_contratacion = ?, fecha_nacimiento = ?, correo_electronico = ?, numero_telefono = ?, fk_id_oficina = ?, fk_id_profesion = ?, fk_id_rol = ?, fk_id_estado = ?
-                WHERE id_empleado = ?";
-
-        // Parámetros para la consulta
-        $params = array(
-            $nombres, $apellidos, $tipo_contrato, $puesto, $dpi_pasaporte, $carnet_igss, $carnet_irtra, 
-            $fecha_contratacion, $fecha_nacimiento, $correo_electronico, $numero_telefono, 
-            $fk_id_oficina, $fk_id_profesion, $fk_id_rol, $fk_id_estado, $id
+        // Crear parámetros para el procedimiento almacenado
+        $sp_params = array(
+            array($id, SQLSRV_PARAM_IN),
+            array($nombres, SQLSRV_PARAM_IN),
+            array($apellidos, SQLSRV_PARAM_IN),
+            array($tipo_contrato, SQLSRV_PARAM_IN),
+            array($puesto, SQLSRV_PARAM_IN),
+            array($dpi_pasaporte, SQLSRV_PARAM_IN),
+            array($carnet_igss, SQLSRV_PARAM_IN),
+            array($carnet_irtra, SQLSRV_PARAM_IN),
+            array($fecha_nacimiento, SQLSRV_PARAM_IN), 
+            array($fecha_contratacion, SQLSRV_PARAM_IN), 
+            array($correo_electronico, SQLSRV_PARAM_IN),
+            array($numero_telefono, SQLSRV_PARAM_IN),
+            array($fk_id_oficina, SQLSRV_PARAM_IN),
+            array($fk_id_profesion, SQLSRV_PARAM_IN),
+            array($fk_id_rol, SQLSRV_PARAM_IN),
+            array($fk_id_estado, SQLSRV_PARAM_IN)
         );
 
-        // Ejecutar la consulta
-        $stmt = sqlsrv_query($conn, $sql, $params);
+        // Llamar al procedimiento almacenado
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_empleado2(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", $sp_params);
 
         // Verificar si la ejecución fue exitosa
-        if ($stmt) {
+        if ($sp_stmt) {
             echo "Empleado actualizado correctamente.";
         } else {
-            echo "Error al ejecutar la consulta:<br>";
+            echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
         }
 
         // Liberar recursos
-        sqlsrv_free_stmt($stmt);
+        sqlsrv_free_stmt($sp_stmt);
     }
 }
 

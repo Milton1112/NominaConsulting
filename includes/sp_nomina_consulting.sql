@@ -154,6 +154,39 @@ END
 GO
 
 --Actuliazar
+CREATE PROCEDURE sp_actualizar_empleado
+    @id_empleado INT,
+    @nombres NVARCHAR(100),
+    @apellidos NVARCHAR(100),
+    @tipo_contrato NVARCHAR(100),
+	@puesto NVARCHAR(100),
+	@dpi_pasaporte NVARCHAR(20),
+	@carnet_igss NVARCHAR(20),
+	@carnet_irtra NVARCHAR(20),
+	@fecha_nacimiento DATE,
+	@fecha_contratacion DATE,
+	@correo_electronico NVARCHAR(100),
+	@numero_telefono NVARCHAR(20),
+	@fk_id_oficina INT,
+	@fk_id_profesion INT,
+    @fk_id_rol INT,
+    @fk_id_estado INT
+AS
+BEGIN
+    UPDATE Empleado
+                SET nombres = @nombres, apellidos = @apellidos, 
+				tipo_contrato = @tipo_contrato, 
+				puesto = @puesto, dpi_pasaporte = @dpi_pasaporte, 
+				carnet_igss = @carnet_igss, carnet_irtra = @carnet_irtra, 
+				fecha_nacimiento =  @fecha_nacimiento,
+				fecha_contratacion = @fecha_contratacion,  
+				correo_electronico = @correo_electronico, numero_telefono = @numero_telefono, 
+				fk_id_oficina = @fk_id_oficina, 
+				fk_id_profesion = @fk_id_profesion, 
+				fk_id_rol = @fk_id_rol, 
+				fk_id_estado = @fk_id_estado
+                WHERE id_empleado = @id_empleado
+END;
 
 
 
