@@ -13,81 +13,6 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
     SignIn2(); // Redirige al login si no está logueado
 }
 
-$isNew = true;
-
-if (isset($_GET['id'])) {
-    $id_empleado = $_GET['id'];
-    $sql = "SELECT E.id_empleado, E.nombres, E.apellidos, E.fecha_contratacion,  E.tipo_contrato,
-            E.puesto, E.dpi_pasaporte, s.salario_base, E.carnet_igss, E.carnet_irtra, E.fecha_nacimiento,
-            E.numero_telefono, E.correo_electronico, P.nombre AS profesion, D.nombre AS departamento, EX.documento,
-            E.fk_id_oficina, E.fk_id_profesion, E.fk_id_departamento, E.fk_id_rol, E.fk_id_estado, E.fk_id_empresa
-            FROM Empleado E
-            INNER JOIN Expediente EX ON E.id_empleado = EX.fk_id_empleado
-            INNER JOIN Salario s ON s.fk_id_empleado = s.fk_id_empleado
-            INNER JOIN Profesion P ON E.fk_id_profesion = P.id_profesion
-            INNER JOIN Departamento D ON E.fk_id_departamento = D.id_departamento
-            WHERE E.id_empleado = ?";
-
-    $params = array($id_empleado);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    if ($stmt === false) {
-        die(print_r(sqlsrv_errors(), true));
-    }
-
-    $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-
-    // Proceed with extracting data if the row is fetched successfully
-    if ($row) {
-        $nombres = $row['nombres'];
-        $apellidos = $row['apellidos'];
-        $fecha_contratacion = $row['fecha_contratacion']->format('Y-m-d');
-        $tipo_contrato = $row['tipo_contrato'];
-        $puesto = $row['puesto'];
-        $dpi_pasaporte = $row['dpi_pasaporte'];
-        $salario = $row['salario_base'];
-        $carnet_igss = $row['carnet_igss'];
-        $carnet_irtra = $row['carnet_irtra'];
-        $fecha_nacimiento = $row['fecha_nacimiento']->format('Y-m-d');
-        $numero_telefono = $row['numero_telefono'];
-        $documento = $row['documento'];
-        $correo_electronico = $row['correo_electronico'];
-        $profesion = $row['profesion'];
-        $departamento = $row['departamento'];
-        $fk_id_oficina = $row['fk_id_oficina'];
-        $fk_id_profesion = $row['fk_id_profesion'];
-        $fk_id_departamento = $row['fk_id_departamento'];
-        $fk_id_rol = $row['fk_id_rol'];
-        $fk_id_estado = $row['fk_id_estado'];
-        $fk_id_empresa = $row['fk_id_empresa'];
-
-
-        // fill values in the form fields
-        echo "<script>
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelector('[name=nombres]').value = '$nombres';
-                document.querySelector('[name=apellidos]').value = '$apellidos';
-                document.querySelector('[name=tipoContrato]').value = '$tipo_contrato';
-                document.querySelector('[name=puesto]').value = '$puesto';
-                document.querySelector('[name=dpiPasaporte]').value = '$dpi_pasaporte';
-                document.querySelector('[name=salario]').value = '$salario';
-                document.querySelector('[name=carnetIgss]').value = '$carnet_igss';
-                document.querySelector('[name=carnetIrtra]').value = '$carnet_irtra';
-                document.querySelector('[name=fechaNacimiento]').value = '$fecha_nacimiento';
-                document.querySelector('[name=correoElectronico]').value = '$correo_electronico';
-                document.querySelector('[name=numTelefono]').value = '$numero_telefono';
-                document.querySelector('[name=fkIdOficina]').value = '$fk_id_oficina';
-                document.querySelector('[name=fkIdProfesion]').value = '$fk_id_profesion';
-                document.querySelector('[name=fkIdDepartamento]').value = '$fk_id_departamento';
-                document.querySelector('[name=fkIdRol]').value = '$fk_id_rol';
-                document.querySelector('[name=fkIdEstado]').value = '$fk_id_estado';
-                document.querySelector('[name=fkIdEmpresa]').value = '$fk_id_empresa';
-            });
-        </script>";
-        $isNew = false;
-    }
-}
-
 $user = $_SESSION['correo_usuario'];
 
 // Obtener la conexión
@@ -176,7 +101,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <!-- Botón de Regresar con icono -->
-            <a href="../../index.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../templates/empleado/empleados.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <!-- Título centrado -->
@@ -382,11 +307,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                         </div>
                     </div>
 
-                    <?php if ($isNew) : ?>
                         <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Registrar Empleado</button>
-                    <?php else : ?>
-                        <button type="submit" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Empleado</button>
-                    <?php endif; ?>
                 </form>
             </div>
         </div>
