@@ -81,15 +81,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
                             <a class="dropdown-item" href="#"><i class="fas fa-users"></i> Prestamos</a>
                         </div>
                     </li>
-                    <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user"></i> Usuario
-                        </a>
-                        <div class="dropdown-menu" arial-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="usuarios.php"><i class="fas fa-user"></i> Usuario</a>
-                            <a class="dropdown-item" href="#"><i class="fas fa-user"></i> Cambiar Contraseña</a>
-                        </div>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="usuarios.php"><i class="fas fa-user"></i> Usuario</a>
                     </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-store"></i> Tienda
