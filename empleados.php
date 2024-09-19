@@ -1,6 +1,6 @@
 <?php
-include_once '../../includes/db_connect.php';
-include_once '../../includes/functions.php';
+include_once 'includes/db_connect.php';
+include_once 'includes/functions.php';
 
 $conn = getConnection(); // Obtener la conexión a la base de datos
 
@@ -73,7 +73,7 @@ if ($stmt === false) {
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../index.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="index.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
@@ -88,7 +88,7 @@ if ($stmt === false) {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, puesto, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
-                    <a href="agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
+                    <a href="templates/empleado/agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
                 </div>
             </form>
             

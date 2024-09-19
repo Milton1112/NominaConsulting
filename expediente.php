@@ -1,6 +1,6 @@
 <?php
-include_once '../../includes/db_connect.php';
-include_once '../../includes/functions.php';
+include_once 'includes/db_connect.php';
+include_once 'includes/functions.php';
 
 $conn = getConnection(); // Obtener la conexión a la base de datos
 
@@ -73,7 +73,7 @@ if ($stmt === false) {
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../index.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="index.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
@@ -112,13 +112,13 @@ if ($stmt === false) {
                                     <td><?php echo $row['numero_telefono']; ?></td>
                                     <td><?php echo $row['correo_electronico']; ?></td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='view_expediente.php?exp=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='templates/expediente/view_expediente.php?exp=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Ver CV
                                             
                                         </button>
                                     </td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_expediente.php?id=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='templates/expediente/editar_expediente.php?id=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-file"></i> Editar
                                         </button>
                                     </td>

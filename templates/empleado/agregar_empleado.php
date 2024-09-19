@@ -101,7 +101,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <!-- Botón de Regresar con icono -->
-            <a href="../../templates/empleado/empleados.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../empleados.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <!-- Título centrado -->
@@ -369,7 +369,8 @@ function verificarInfoEmpleado($conn)
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
-            echo "Empleado insertado correctamente.";
+            $nombreCompleto = $nombres. $apellidos;
+            enviarcorreoEmpleado($nombreCompleto, $correoElectronico, $fkIdOficina, $fkIdEmpresa, $conn);
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
@@ -380,6 +381,165 @@ function verificarInfoEmpleado($conn)
     }
 }
 
+
+//Funcion para evnviar correo a un nuevo empleado de bienvenida
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+
+function enviarcorreoEmpleado($nombreCompleto, $correoElectronico, $fkIdOficina, $fkIdEmpresa, $conn){
+    require '../../phpmailer/src/Exception.php';
+    require '../../phpmailer/src/PHPMailer.php';
+    require '../../phpmailer/src/SMTP.php';
+    
+    // Buscar el nombre de la empresa
+    $sqlEmpresa = "SELECT nombre FROM Empresa WHERE id_empresa = ?";
+    $paramsEmpresa = array($fkIdEmpresa);
+    $stmtEmpresaLocal = sqlsrv_query($conn, $sqlEmpresa, $paramsEmpresa);
+
+    if ($stmtEmpresaLocal === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+
+    // Obtener el nombre de la empresa
+    $nombreEmpresa = "la empresa"; // Valor por defecto
+    if ($rowEmpresa = sqlsrv_fetch_array($stmtEmpresaLocal, SQLSRV_FETCH_ASSOC)) {
+        $nombreEmpresa = $rowEmpresa['nombre'];
+    }
+
+    // Buscar el nombre de la oficina
+    $sqlOficina = "SELECT nombre FROM Oficina WHERE id_oficina = ?";
+    $paramsOficina = array($fkIdOficina);
+    $stmtOficinaLocal = sqlsrv_query($conn, $sqlOficina, $paramsOficina);
+
+    if ($stmtOficinaLocal === false) {
+        die(print_r(sqlsrv_errors(), true));
+    }
+
+    // Obtener el nombre de la oficina
+    $nombreOficina = "la oficina"; // Valor por defecto
+    if ($rowOficina = sqlsrv_fetch_array($stmtOficinaLocal, SQLSRV_FETCH_ASSOC)) {
+        $nombreOficina = $rowOficina['nombre'];
+    }
+
+    // Liberar recursos locales
+    sqlsrv_free_stmt($stmtEmpresaLocal);
+    sqlsrv_free_stmt($stmtOficinaLocal);
+    // No cerrar $conn aquí
+
+    // Configurar PHPMailer
+    $mail = new PHPMailer(true);
+
+    try {
+        // Configuración del servidor SMTP
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'noreply.nomina.consulting@gmail.com';
+        $mail->Password   = 'vfntiwpxbxnhvapu'; // Considera almacenarlo de forma segura
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port       = 465;
+
+        // Destinatarios
+        $mail->setFrom('noreply.nomina.consulting@gmail.com', 'Nomina Consulting');
+        $mail->addAddress($correoElectronico, $nombreCompleto);
+
+        // Contenido del correo
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        $mail->Subject = "[Nomina-Consulting] Bienvenido a: $nombreEmpresa";
+        $mail->Body = "
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #113069;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            color: #ffffff;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+            width:80%;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content p {
+            margin: 0 0 15px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            color: #ffffff;
+            background-color: #113069;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #cccccc;
+            text-align: center;
+            font-size: 14px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <img src='https://firebasestorage.googleapis.com/v0/b/eroma-quiker.appspot.com/o/logo.png?alt=media&token=c7ec3188-c9aa-41a8-b614-c88fc5809b1a' alt='Logo de la empresa' class='logo'>
+            <h1>¡Bienvenido a Nomina-Consulting!</h1>
+        </div>
+        <div class='content'>
+            <p>Hola  estimado/a<strong>" . $nombreCompleto . "</strong>,</p>
+            <p>Bienvenido a la empresa $nombreEmpresa, será un gusto tenerlo/a aqui con nosotros.</p>
+            <p><strong>Tu oficina asignada es:</strong> " . $nombreOficina ."</p>
+            <img  src='https://firebasestorage.googleapis.com/v0/b/nomina-consulting.appspot.com/o/hello.gif?alt=media&token=2d752559-7599-4f96-b5d3-c2ddf7157289'  alt='Logo de la empresa' class='logo'>
+            <p>Saludos cordiales,</p>
+            <p>Nomina Consulting, $nombreEmpresa.</p>
+        </div>
+        <div class='footer'>
+            <p>Gracias,
+                <br>El equipo de Nomina-Consulting</p>
+        </div>
+    </div>
+</body>
+</html>
+";
+        $mail->send();
+        echo '<script>alert("Se ha creado el empleado y enviado por correo electrónico."); window.location.href = "../../empleados.php";</script>';
+
+    } catch (Exception $e) {
+        echo "No se pudo enviar el correo. Error de Mailer: {$mail->ErrorInfo}";
+    }
+}
 
 
 // Llamar a la función para verificar y procesar el formulario

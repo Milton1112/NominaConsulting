@@ -83,7 +83,7 @@ function cerrarConexion($stmts, $conn)
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../templates/expediente/expediente.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../expediente.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
@@ -147,7 +147,7 @@ function verificarInfoEmpleado($conn)
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
-            echo "Expediente actualizado correctamente.";
+            echo '<script>alert("Expediente actualizado correctamente"); window.location.href = "../../expediente.php";</script>';
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
