@@ -220,7 +220,7 @@ function enviarCorreoContrasena($to, $nombreUsuario) {
             <p>Hola <strong>" . $nombreUsuario . "</strong>,</p>
             <p>Si no cambio su contraseña, la contraseña puede estar comprometida.</p>
             <p>Por favor, visite el siguiente enlace para crear una contraseña nueva y segura para su cuenta de Nomina-Consulting:</p>
-            <p><a href='http://nominasolidarista.wuaze.com/recoverpassword.php' class='button'>Restablecer Contraseña</a></p>
+            <p><a href='../../modules/restablecer_contrasena.php' class='button'>Restablecer Contraseña</a></p>
         </div>
         <div class='footer'>
             <p>Gracias,<br>El equipo de Nomina-Consulting</p>

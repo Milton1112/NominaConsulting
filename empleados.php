@@ -120,7 +120,7 @@ if ($stmt === false) {
                                     <td><?php echo $row['profesion']; ?></td>
                                     <td><?php echo $row['departamento']; ?></td>
                                     <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
+                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='templates/empleado/editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Editar
                                         </button>
                                     </td>

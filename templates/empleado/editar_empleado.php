@@ -273,11 +273,13 @@ function verificarActualizarEmpleado($conn) {
         );
 
         // Llamar al procedimiento almacenado
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_empleado2(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", $sp_params);
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_empleado(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", $sp_params);
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
-            echo "Empleado actualizado correctamente.";
+            $nombreCompleto = $nombres. $apellidos;
+            enviarEmailVerificacion($id, $correo_electronico, $nombreCompleto, $tipo_contrato, $puesto, $dpi_pasaporte, $carnet_igss,
+            $carnet_irtra, $fecha_nacimiento, $fecha_contratacion, $numero_telefono);
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
@@ -285,6 +287,183 @@ function verificarActualizarEmpleado($conn) {
 
         // Liberar recursos
         sqlsrv_free_stmt($sp_stmt);
+    }
+}
+
+// Función para enviar la nueva contraseña por correo electrónico
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+function enviarEmailVerificacion($id, $correo_electronico, $nombreCompleto, $tipo_contrato, $puesto, $dpi_pasaporte, $carnet_igss,
+$carnet_irtra, $fecha_nacimiento, $fecha_contratacion, $numero_telefono){
+    require '../../phpmailer/src/Exception.php';
+    require '../../phpmailer/src/PHPMailer.php';
+    require '../../phpmailer/src/SMTP.php';
+
+
+    $mail = new PHPMailer(true);
+
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'noreply.nomina.consulting@gmail.com';
+    $mail->Password = 'vfntiwpxbxnhvapu';
+    $mail->SMTPSecure = 'ssl';
+    $mail->Port = 465;
+
+    $mail->setFrom('noreply.nomina.consulting@gmail.com');
+    $mail->addAddress($correo_electronico);
+
+    $mail->isHTML(true);
+    $mail->CharSet = 'UTF-8';
+    $mail->Subject = "[Nomina-Consulting] Se Actuliazo la información del empleado: $nombreCompleto";
+    $mail->Body = "
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #113069;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+            color: #ffffff;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+            width:80%;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            color: #ffffff;
+            background-color: #113069;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #cccccc;
+            text-align: center;
+            font-size: 14px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <img src='https://firebasestorage.googleapis.com/v0/b/eroma-quiker.appspot.com/o/logo.png?alt=media&token=c7ec3188-c9aa-41a8-b614-c88fc5809b1a' alt='Logo de la empresa' class='logo'>
+            <h1>Se actualizó su información correctamente</h1>
+        </div>
+        <div class='content'>
+            <p>Hola <strong>" . $NombreCompleto . "</strong>,</p>
+            <p>En la siguiente tabla puede ver toda su información actualizada:</p>
+            <table>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Nombre completo</td>
+                    <td>" . $NombreCompleto . "</td>
+                </tr>
+                <tr>
+                    <td>Correo electrónico</td>
+                    <td>" . $correo_electronico . "</td>
+                </tr>
+                <tr>
+                    <td>Tipo de contrato</td>
+                    <td>" . $tipo_contrato . "</td>
+                </tr>
+                <tr>
+                    <td>Puesto</td>
+                    <td>" . $puesto . "</td>
+                </tr>
+                <tr>
+                    <td>DPI/Pasaporte</td>
+                    <td>" . $dpi_pasaporte . "</td>
+                </tr>
+                <tr>
+                    <td>Carnet IGSS</td>
+                    <td>" . $carnet_igss . "</td>
+                </tr>
+                <tr>
+                    <td>Carnet IRTRA</td>
+                    <td>" . $carnet_irtra . "</td>
+                </tr>
+                <tr>
+                    <td>Fecha de nacimiento</td>
+                    <td>" . $fecha_nacimiento . "</td>
+                </tr>
+                <tr>
+                    <td>Fecha de contratación</td>
+                    <td>" . $fecha_contratacion . "</td>
+                </tr>
+                <tr>
+                    <td>Número de teléfono</td>
+                    <td>" . $numero_telefono . "</td>
+                </tr>
+                
+            </table>
+            <p><a href='../../templates/empleado/view_informacion.php?id=<?php echo $id; ?>' class='button'>Ver información completa</a></p>
+        </div>
+        <div class='footer'>
+            <p>Gracias,<br>El equipo de Nomina-Consulting</p>
+        </div>
+    </div>
+</body>
+</html>
+";
+
+    
+    try {
+        $mail->send();
+        echo '<script>alert("Se ha restablecido la contraseña y enviado por correo electrónico."); window.location.href = "../../usuarios.php";</script>';
+    } catch (Exception $e) {
+        echo '<script>alert("Error al enviar el correo."); window.location.href = "../../usuarios.php";</script>';
     }
 }
 
