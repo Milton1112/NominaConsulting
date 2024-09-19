@@ -463,7 +463,7 @@ $carnet_irtra, $fecha_nacimiento, $fecha_contratacion, $numero_telefono){
         $mail->send();
         echo '<script>alert("Se ha restablecido la contraseña y enviado por correo electrónico."); window.location.href = "../../usuarios.php";</script>';
     } catch (Exception $e) {
-        echo '<script>alert("Error al enviar el correo."); window.location.href = "../../usuarios.php";</script>';
+        echo '<script>alert("Error al enviar el correo."); window.location.href = "../../empleado.php";</script>';
     }
 }
 

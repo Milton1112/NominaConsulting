@@ -102,20 +102,50 @@ function login()
         </script>
         <?php
 
-        die((true));
+        die(print_r(sqlsrv_errors(), true));
     }
 
     $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
     if ($row) {
-        // Si el login es exitoso, iniciar sesión y redirigir
+        // Iniciar sesión
         $_SESSION['usuario_logueado'] = true;
         $_SESSION['correo_usuario'] = $email;
+        $_SESSION['rol_usuario'] = $row['rol'];
 
-        header("Location: index.php");
+        // Redirigir según el rol del usuario
+        switch ($row['rol']) {
+            case 'Empleado':
+                header("Location: tiendaNomina.php");
+                break;
+            case 'Jefe Inmediato':
+            case 'Gerente':
+            case 'Administrador':
+                header("Location: index.php");
+                break;
+            case 'Contador':
+                header("Location: auditoriaNomina.php");
+                break;
+            default:
+                // Rol desconocido, redirigir al index por defecto
+                header("Location: index.php");
+                break;
+        }
         exit();
+    } else {
+        ?>
+        <script>
+            document.querySelector('.alert').removeAttribute('hidden');
+
+            setTimeout(() => {
+                document.querySelector('.alert').setAttribute('hidden', 'true');
+            }, 5000);
+        </script>
+        <?php
     }
 
     sqlsrv_free_stmt($stmt);
     sqlsrv_close($conn);
 }
+
+
 ?>

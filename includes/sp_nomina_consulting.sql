@@ -27,17 +27,19 @@ BEGIN
     -- Comparar la contraseña proporcionada (encriptada) con la almacenada
     IF @hashedContrasena = @contrasenaBD
     BEGIN
-        -- Si las contraseñas coinciden, devolver los detalles del usuario
+        -- Si las contraseñas coinciden, devolver los detalles del usuario y su rol
         SELECT 
             u.id_usuario AS ID,
             u.correo AS email,
             e.nombres + ' ' + e.apellidos AS username,
             em.id_empresa,
-            em.nombre AS empresa
+            em.nombre AS empresa,
+            r.nombre AS rol  -- Agregar rol del usuario
         FROM 
             Usuario u
             INNER JOIN Empleado e ON u.fk_id_empleado = e.id_empleado
             INNER JOIN Empresa em ON u.fk_id_empresa = em.id_empresa
+            INNER JOIN Rol r ON e.fk_id_rol = r.id_rol  -- Unir con la tabla de roles
         WHERE 
             u.correo = @correo;
     END

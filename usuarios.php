@@ -80,10 +80,34 @@ $users = getUsers($searchTerm, $page, $rowsPerPage);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="assets/css/usuarios.css">
     <link rel="stylesheet" href="assets/css/login.css">
+    <style>
+        body {
+            background-color: #F4F7FC;
+        }
+        .table thead {
+            background-color: #2F2C59;
+            color: #fff;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #DDE2FF;
+        }
+        .header-title {
+            text-align: center;
+            color: #2F2C59;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <label>NOMINA-CONSULTING</label>
+    <header class="bg-primary text-white py-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="index.php" class="btn btn-outline-light d-flex align-items-center">
+                <i class="bi bi-arrow-left-circle me-2"></i> Regresar
+            </a>
+            <div class="text-center flex-grow-1">
+                <h1 class="fs-3 mb-0 fw-bold">Lista de Usuarios</h1>
+            </div>
+        </div>
     </header>
 
     <div class="div-color container mt-5">
@@ -91,8 +115,7 @@ $users = getUsers($searchTerm, $page, $rowsPerPage);
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Buscar por username, email o ID" value="<?php echo htmlspecialchars($searchTerm); ?>">
             <button type="submit" class="btn btn-primary">Buscar</button>
-            <button type="button" class="color-text-button btn btn-outline-light">Agregar usuario</button>
-
+            <a type="button" href="templates/usuario/agregar_usuario.php" class="color-text-button btn btn-outline-light">Agregar usuario</a>
         </div>
     </form>
 
