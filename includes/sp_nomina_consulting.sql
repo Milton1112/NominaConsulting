@@ -194,7 +194,8 @@ END;
 
 -- Listar
 CREATE PROCEDURE sp_listar_empleados_con_filtro
-    @criterio NVARCHAR(255)
+    @criterio NVARCHAR(255),
+    @fk_id_rol INT 
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -217,6 +218,7 @@ BEGIN
     INNER JOIN 
         Departamento D ON E.fk_id_departamento = D.id_departamento
     WHERE
+        E.fk_id_rol = @fk_id_rol AND
         E.id_empleado LIKE '%' + @criterio + '%' 
         OR E.nombres LIKE '%' + @criterio + '%' 
         OR E.apellidos LIKE '%' + @criterio + '%' 
@@ -257,8 +259,9 @@ GO
 --Expediente empleado
 
 --Listar
- CREATE PROCEDURE sp_listar_expedientes_empleados
-    @criterio NVARCHAR(255)
+  CREATE PROCEDURE sp_listar_expedientes_empleados
+    @criterio NVARCHAR(255),
+	@fk_id_empresa INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -269,11 +272,13 @@ BEGIN
         E.numero_telefono, 
         E.correo_electronico, 
         EX.documento
+
     FROM 
         Empleado E
     INNER JOIN 
         Expediente EX ON E.id_empleado = EX.fk_id_empleado
     WHERE 
+	    E.fk_id_empresa = @fk_id_empresa AND 
         E.id_empleado LIKE '%' + @criterio + '%' 
         OR E.nombres LIKE '%' + @criterio + '%' 
         OR E.apellidos LIKE '%' + @criterio + '%' 
@@ -281,6 +286,7 @@ BEGIN
         OR E.correo_electronico LIKE '%' + @criterio + '%';
 END
 GO
+
 
 --Actualizar
 

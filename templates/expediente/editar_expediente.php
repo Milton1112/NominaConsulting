@@ -147,7 +147,7 @@ function verificarInfoEmpleado($conn)
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
-            echo '<script>alert("Expediente actualizado correctamente"); window.location.href = "../../expediente.php";</script>';
+            echo '<script>alert("Expediente actualizado correctamente."); window.location.href = "../../expediente.php";</script>';
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución

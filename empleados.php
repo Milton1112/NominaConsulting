@@ -27,10 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarEmpleado'])) {
     $criterio = $_POST['buscarEmpleado'];
 }
 
-// Procedimiento almacenado para listar empleados con filtro
-$sql = "{CALL sp_listar_empleados_con_filtro(?)}";
+// Obtener el fk_id_empresa desde la sesión
+$fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
+
+// Procedimiento almacenado para listar empleados con filtro y fk_id_empresa
+$sql = "{CALL sp_listar_empleados_con_filtro(?, ?)}";
 $params = array(
-    array($criterio, SQLSRV_PARAM_IN)
+    array($criterio, SQLSRV_PARAM_IN),
+    array($fk_id_empresa, SQLSRV_PARAM_IN) // Pasar fk_id_empresa como parámetro
 );
 
 // Ejecutar la consulta
@@ -49,7 +53,6 @@ if ($stmt === false) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lista de Empleados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/global.css">
     <style>
@@ -62,11 +65,6 @@ if ($stmt === false) {
         }
         .table-hover tbody tr:hover {
             background-color: #DDE2FF;
-        }
-        .header-title {
-            text-align: center;
-            color: #2F2C59;
-            margin-bottom: 20px;
         }
     </style>
 </head>

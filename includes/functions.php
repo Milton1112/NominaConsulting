@@ -1,11 +1,12 @@
 <?php
 session_start(); // Asegúrate de que la sesión esté iniciada
-// Sanitizar la entrada de datos
+
+// Función para sanitizar la entrada de datos
 function sanitizeInput($data) {
     return htmlspecialchars(strip_tags($data));
 }
 
-// Verificar si ha iniciado sesión
+// Verificar si ha iniciado sesión y redirigir al usuario según su rol
 function SignIn() {
     if (isset($_SESSION['usuario_logueado']) && $_SESSION['usuario_logueado'] === true) {
         // Redirigir al usuario según su rol
@@ -22,7 +23,6 @@ function SignIn() {
                 header("Location: auditoriaNomina.php");
                 break;
             default:
-                // Si el rol no está definido, redirigir por defecto al index
                 header("Location: index.php");
                 break;
         }
@@ -34,65 +34,7 @@ function SignIn() {
     }
 }
 
-function SignIn2() {
-    if (isset($_SESSION['usuario_logueado']) && $_SESSION['usuario_logueado'] === true) {
-        // Redirigir al usuario según su rol
-        switch ($_SESSION['rol_usuario']) {
-            case 'Empleado':
-                header("Location: tiendaNomina.php");
-                break;
-            case 'Jefe Inmediato':
-            case 'Gerente':
-            case 'Administrador':
-                header("Location: index.php");
-                break;
-            case 'Contador':
-                header("Location: auditoriaNomina.php");
-                break;
-            default:
-                // Si el rol no está definido, redirigir por defecto al index
-                header("Location: index.php");
-                break;
-        }
-        exit();
-    } else {
-        // Si el usuario no ha iniciado sesión, redirigir a login.php
-        header("Location: ../../login.php");
-        exit();
-    }
-}
-
-
-function SignIn3() {
-    if (isset($_SESSION['usuario_logueado']) && $_SESSION['usuario_logueado'] === true) {
-        // Redirigir al usuario según su rol
-        switch ($_SESSION['rol_usuario']) {
-            case 'Empleado':
-                header("Location: tiendaNomina.php");
-                break;
-            case 'Jefe Inmediato':
-            case 'Gerente':
-            case 'Administrador':
-                header("Location: index.php");
-                break;
-            case 'Contador':
-                header("Location: auditoriaNomina.php");
-                break;
-            default:
-                // Si el rol no está definido, redirigir por defecto al index
-                header("Location: index.php");
-                break;
-        }
-        exit();
-    } else {
-        // Si el usuario no ha iniciado sesión, redirigir a login.php
-        header("Location: ../login.php");
-        exit();
-    }
-}
-
-
-// Cerrar sesión
+// Cerrar sesión y destruir las variables de sesión
 function SignOut() {
     // Iniciar la sesión si no está ya iniciada
     if (session_status() == PHP_SESSION_NONE) {
@@ -114,7 +56,7 @@ function SignOut() {
     // Finalmente, destruir la sesión
     session_destroy();
 
-    // Redirigir al usuario a la página de login u otra página después de cerrar sesión
+    // Redirigir al usuario a la página de login
     header("Location: login.php");
     exit();
 }

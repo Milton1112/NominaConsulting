@@ -27,10 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarEmpleado'])) {
     $criterio = $_POST['buscarEmpleado'];
 }
 
+// Obtener el fk_id_empresa desde la sesión
+$fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
+
 // Procedimiento almacenado para listar expedientes con filtro
-$sql = "{CALL sp_listar_expedientes_empleados(?)}";
+$sql = "{CALL sp_listar_expedientes_empleados(?, ?)}";
 $params = array(
-    array($criterio, SQLSRV_PARAM_IN)
+    array($criterio, SQLSRV_PARAM_IN),
+    array($fk_id_empresa, SQLSRV_PARAM_IN)
 );
 
 // Ejecutar la consulta
