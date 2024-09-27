@@ -25,6 +25,7 @@ if ($conn) {
             );
 
             $sp_stmt = sqlsrv_query($conn, "{call sp_cambiar_contra(?, ?)}", $sp_params);
+            
 
             if ($sp_stmt) {
                 // Enviar la nueva contraseña por correo electrónico al usuario
