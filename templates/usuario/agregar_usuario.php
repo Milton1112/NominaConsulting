@@ -207,7 +207,7 @@ function agregarUsuario($conn, $correo, $fkIdEmpresa, $fkIdEmpleado, $nombreUsua
         // Enviar la nueva contraseña por correo electrónico al usuario
         enviarCorreoContrasena($correo, $nuevaContrasena, $nombreUsuario);
     } else {
-        echo '<script>alert("Error al restablecer la contraseña."); window.location.href = "../../usuarios.php";</script>';
+        echo '<script>alert("Error al crear el usuario."); window.location.href = "../../usuarios.php";</script>';
     }
     sqlsrv_free_stmt($sp_stmt);
 }

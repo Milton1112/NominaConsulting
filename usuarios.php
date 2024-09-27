@@ -145,7 +145,7 @@ $users = getUsers($searchTerm, $page, $rowsPerPage);
                                     <a class="bx--dots-vertical-rounded" href="#" role="button" id="dropdownMenuLink<?php echo $user['ID']; ?>" data-bs-toggle="dropdown" aria-expanded="false"></a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink<?php echo $user['ID']; ?>">
                                         <li><a class="dropdown-item" href="modificar.php?id=<?php echo $user['ID']; ?>">Modificar</a></li>
-                                        <li><a class="dropdown-item" href="eliminar.php?id=<?php echo $user['ID']; ?>" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">Eliminar</a></li>
+                                        <li><a class="dropdown-item" href="templates/usuario/eliminar_usuario.php?id=<?php echo $user['ID']; ?>" onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">Eliminar</a></li>
                                         <li><a class="dropdown-item" href="templates/usuario/cambiar_contra.php?id=<?php echo $user['ID']; ?>">Cambiar Contraseña</a></li>
                                     </ul>
                                 </div>

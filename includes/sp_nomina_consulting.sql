@@ -195,38 +195,28 @@ END;
 -- Listar
 CREATE PROCEDURE sp_listar_empleados_con_filtro
     @criterio NVARCHAR(255),
-    @fk_id_rol INT 
+    @fk_id_empresa INT 
 AS
 BEGIN
     SET NOCOUNT ON;
 
     SELECT 
-        E.id_empleado, 
-        E.nombres, 
-        E.apellidos, 
-        E.fecha_contratacion, 
-        E.puesto, 
-        E.dpi_pasaporte, 
-        E.numero_telefono, 
-        E.correo_electronico, 
-        P.nombre AS profesion, 
-        D.nombre AS departamento
+    e.id_empleado,
+    e.nombres,
+    e.apellidos,
+    e.puesto,
+    e.dpi_pasaporte,
+    e.numero_telefono,
+    e.correo_electronico,
+    e.nombres AS profesion, -- Asegúrate de incluir esta columna
+    d.nombre AS departamento
     FROM 
-        Empleado E
+        Empleado e
     INNER JOIN 
-        Profesion P ON E.fk_id_profesion = P.id_profesion
-    INNER JOIN 
-        Departamento D ON E.fk_id_departamento = D.id_departamento
-    WHERE
-        E.fk_id_rol = @fk_id_rol AND
-        E.id_empleado LIKE '%' + @criterio + '%' 
-        OR E.nombres LIKE '%' + @criterio + '%' 
-        OR E.apellidos LIKE '%' + @criterio + '%' 
-        OR E.puesto LIKE '%' + @criterio + '%' 
-        OR E.numero_telefono LIKE '%' + @criterio + '%' 
-        OR E.correo_electronico LIKE '%' + @criterio + '%' 
-        OR P.nombre LIKE '%' + @criterio + '%' 
-        OR D.nombre LIKE '%' + @criterio + '%';
+        Departamento d ON e.fk_id_departamento = d.id_departamento
+    WHERE 
+        e.fk_id_empresa = @fk_id_empresa
+    AND (e.nombres LIKE '%' + @criterio + '%' OR e.apellidos LIKE '%' + @criterio + '%');
 END
 GO
 
@@ -256,6 +246,19 @@ BEGIN
 END
 GO
 
+--Eliminar
+CREATE PROCEDURE sp_eliminar_usuario
+@id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	DELETE FROM Usuario
+	WHERE id_usuario = @id;
+
+END
+GO
+
 --Expediente empleado
 
 --Listar
@@ -266,7 +269,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT 
+   SELECT 
         E.id_empleado, 
         E.nombres + ' ' + E.apellidos AS [Nombre completo], 
         E.numero_telefono, 
@@ -278,12 +281,12 @@ BEGIN
     INNER JOIN 
         Expediente EX ON E.id_empleado = EX.fk_id_empleado
     WHERE 
-	    E.fk_id_empresa = @fk_id_empresa AND 
-        E.id_empleado LIKE '%' + @criterio + '%' 
-        OR E.nombres LIKE '%' + @criterio + '%' 
-        OR E.apellidos LIKE '%' + @criterio + '%' 
-        OR E.numero_telefono LIKE '%' + @criterio + '%' 
-        OR E.correo_electronico LIKE '%' + @criterio + '%';
+	    E.fk_id_empresa = @fk_id_empresa 
+	AND (E.id_empleado LIKE '%' + @criterio + '%'
+    OR E.nombres LIKE '%' + @criterio + '%' 
+    OR E.apellidos LIKE '%' + @criterio + '%' 
+    OR E.numero_telefono LIKE '%' + @criterio + '%' 
+    OR E.correo_electronico LIKE '%' + @criterio + '%');
 END
 GO
 
