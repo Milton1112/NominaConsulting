@@ -55,7 +55,7 @@ GO
 --Usuarios
 
 --Crear
-CREATE OR ALTER PROCEDURE sp_registrar_usuario
+CREATE PROCEDURE sp_registrar_usuario
     @correo NVARCHAR(255),
     @contrasena NVARCHAR(255),
     @fk_id_empleado INT,
@@ -81,7 +81,7 @@ END
 GO
 
 --Listar
-CREATE OR ALTER PROCEDURE sp_listar_usuarios
+CREATE PROCEDURE sp_listar_usuarios
     @SearchTerm NVARCHAR(255) = NULL,
     @Offset INT = 0,
     @RowsPerPage INT = 20
@@ -114,7 +114,7 @@ END
 --empleado
 
 --Crear
-CREATE OR ALTER PROCEDURE sp_InsertarEmpleado
+CREATE PROCEDURE sp_InsertarEmpleado
     @Nombres NVARCHAR(100),
     @Apellidos NVARCHAR(100),
     @TipoContrato NVARCHAR(50),
@@ -232,7 +232,7 @@ GO
 
 
 --Actualizar Contraeña
-CREATE OR ALTER PROCEDURE sp_cambiar_contra
+CREATE PROCEDURE sp_cambiar_contra
     @id_usuario INT,
     @nueva_contrasena NVARCHAR(255)
 AS

@@ -38,13 +38,8 @@ function cerrarConexion($stmts, $conn)
 // Obtener el fk_id_empresa desde la sesión
 $fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
 
-
-// Consulta para obtener los empleados
-$sqlEmpleado = "SELECT id_empleado, nombres + apellidos AS username FROM Empleado WHERE fk_id_empresa = $fk_id_empresa";
-$stmtEmpleado = sqlsrv_query($conn, $sqlEmpleado);
-
 // Consulta para obtener las empresas
-$sqlEmpresa = "SELECT id_empresa, nombre FROM Empresa WHERE id_empresa = $fk_id_empresa";
+$sqlEmpresa = "SELECT id_empresa, nombre FROM Empresa;";
 $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 
 ?>
@@ -123,16 +118,9 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
                         </div>
 
                         <div class="col-md-6">
-                            <label for="fkIdEmpresa" class="form-label">Empleado</label>
-                            <select class="form-control" id="fkIdEmpleado" name="fkIdEmpleado" required>
-                                <option value="">Seleccione un empleado</option>
-                                <?php
-                                while ($row = sqlsrv_fetch_array($stmtEmpleado, SQLSRV_FETCH_ASSOC)) {
-                                    echo '<option value="' . $row["id_empleado"] . '">' . $row["username"] . '</option>';
-                                }
-                                ?>
-                            </select>
-                            <div class="invalid-feedback">Por favor, selecciona una empresa.</div>
+                            <label for="dpiPasaporte" class="form-label">DPI/PASAPORTE</label>
+                            <input type="number" class="form-control" name="dpiPasaporte" placeholder="Ingrese el DPI/PASAPORTE" required>
+                            <div class="invalid-feedback">Por favor, ingresa el DPI/PASAPORTE del empleado.</div>
                         </div>
 
                     <button type="submit" class="btn btn-primary w-100">Crear empleado</button>
@@ -150,7 +138,10 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 
 function verificarInfoUsuario($conn){
     if ($_SERVER["REQUEST_METHOD"] == "POST"){
+        $fkIdEmpresa = $_POST["fkIdEmpresa"];
+        $dpiPasaporte = $_POST["dpiPasaporte"];
 
+        $sqlVerificarEmpleado = '';
     }
 }
 
@@ -158,6 +149,6 @@ function verificarInfoUsuario($conn){
 verificarInfoUsuario($conn);
 
 // Cerrar la conexión (asumiendo que tienes esta función definida)
-cerrarConexion([$stmtEmpleado, $stmtEmpresa], $conn);
+cerrarConexion([$stmtEmpresa], $conn);
 
 ?>
