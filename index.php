@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="expediente.php"><i class="fas fa-folder"></i> Expediente</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bono 14</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Aguinaldo</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-money-bill"></i> Salario</a>
+        <a class="dropdown-item" href="salario.php"><i class="fas fa-money-bill"></i> Salario</a>
         <a class="dropdown-item" href="#"><i class="fas fa-hand-holding-usd"></i> Anticipo</a>
         <a class="dropdown-item" href="#"><i class="fas fa-calendar-times"></i> Ausencia</a>
         <a class="dropdown-item" href="#"><i class="fas fa-clock"></i> Horas Extras</a>

@@ -39,8 +39,20 @@ $mail->Body = "
         .content {
             padding: 20px;
         }
-        .content p {
-            margin: 0 0 15px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #dddddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
         }
         .button {
             display: inline-block;
@@ -65,14 +77,22 @@ $mail->Body = "
     <div class='container'>
         <div class='header'>
             <img src='https://firebasestorage.googleapis.com/v0/b/eroma-quiker.appspot.com/o/logo.png?alt=media&token=c7ec3188-c9aa-41a8-b614-c88fc5809b1a' alt='Logo de la empresa' class='logo'>
-            <h1>¡Bienvenido a Nomina-Consulting!</h1>
+            <h1>¡Felicidades! por su aumento</h1>
         </div>
         <div class='content'>
-            <p>Hola <strong>" . $nombreUsuario . "</strong>,</p>
-            <p>Esta es tu correo y contraseña para iniciar sesión.</p>
-            <p><strong>Nueva usuario:</strong> ". $correo. '' . $contrasena . "</p>
-            <p>Por favor, visite el siguiente enlace para crear una contraseña nueva y segura para su cuenta de Nomina-Consulting:</p>
-            <p><a href='modules/restablecer_contrasena.php' class='button'>Restablecer Contraseña</a></p>
+            <p>Hola <strong>" . $nombre . "</strong>,</p>
+            <p>En la siguiente tabla puede ver toda su información actualizada:</p>
+            <table>
+                <tr>
+                    <th>Salario Anterior</th>
+                    <th>Salario Nuevo</th>
+                </tr>
+                <tr>
+                    <td>" . $salario_anterior . "</td>
+                    <td>" . $salario_base . "</td>
+                </tr>
+               
+            </table>
         </div>
         <div class='footer'>
             <p>Gracias,<br>El equipo de Nomina-Consulting</p>

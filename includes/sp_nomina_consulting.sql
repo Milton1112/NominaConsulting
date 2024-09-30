@@ -80,6 +80,14 @@ BEGIN
 END
 GO
 
+-- Ejecutar el procedimiento almacenado correcto
+EXEC sp_registrar_usuario 
+    @correo = 'admin@consulting-nomina.com',
+    @contrasena = 'Holaque123',
+    @fk_id_empleado = 1,
+    @fk_id_empresa = 1;
+
+
 --Listar
 CREATE PROCEDURE sp_listar_usuarios
     @SearchTerm NVARCHAR(255) = NULL,
@@ -155,6 +163,27 @@ BEGIN
 END
 GO
 
+EXEC sp_InsertarEmpleado 
+    @Nombres = 'Admin',
+    @Apellidos = 'Admin',
+    @TipoContrato = 'Contrato Indefinido',
+    @Puesto = 'Informatica',
+    @DpiPasaporte = '2955334851006',
+    @Salario = 0.00,  -- Salario Base
+    @CarnetIgss = '201364483588',
+    @CarnetIrtra = '2955334851006',
+    @FechaNacimiento = '2002-04-28',
+    @CorreoElectronico = 'admin@consulting-nomina.com',
+    @Telefono = '59541235',
+    @Expediente = NULL,  -- Documento en Expediente como NULL
+    @Fk_Id_Oficina = 1,
+    @Fk_Id_Profesion = 1,
+    @Fk_Id_Departamento = 1,
+    @Fk_Id_Rol = 4,
+    @Fk_Id_Estado = 1,
+    @Fk_Id_Empresa = 1;
+
+
 --Actuliazar
 CREATE PROCEDURE sp_actualizar_empleado
     @id_empleado INT,
@@ -188,8 +217,8 @@ BEGIN
 				fk_id_rol = @fk_id_rol, 
 				fk_id_estado = @fk_id_estado
                 WHERE id_empleado = @id_empleado
-END;
-
+END
+GO
 
 
 -- Listar
@@ -303,3 +332,52 @@ BEGIN
 	WHERE fk_id_empleado = @id_empleado
 END;
    
+--Salario
+
+--listar
+CREATE PROCEDURE sp_listar_salario
+    @criterio NVARCHAR(255),
+    @fk_id_empresa INT 
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	SELECT 
+    s.id_salario,
+    e.nombres + ' ' + e.apellidos AS nombre,
+    e.numero_telefono,
+    s.salario_base,
+    s.salario_anterior
+FROM 
+    Salario s
+INNER JOIN 
+    Empleado e ON s.fk_id_empleado = e.id_empleado
+WHERE 
+    e.fk_id_empresa = @fk_id_empresa
+    AND (
+        e.nombres LIKE '%' + @criterio + '%' 
+        OR e.apellidos LIKE '%' + @criterio + '%'
+        OR s.salario_base LIKE '%' + @criterio + '%'
+        OR s.salario_anterior LIKE '%' + @criterio + '%'
+		OR e.numero_telefono LIKE '%' + @criterio + '%'
+    );
+
+    
+END
+GO
+
+--actualizar
+CREATE PROCEDURE sp_actualizar_salario
+    @id INT,
+    @salario decimal(8,2),
+    @salarioNuevo decimal(8,2)
+AS
+BEGIN
+    UPDATE Salario
+                SET 
+				    salario_anterior = @salario, salario_base = @salarioNuevo
+                WHERE 
+				    id_salario = @id
+END
+GO
+
