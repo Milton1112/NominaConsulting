@@ -80,14 +80,6 @@ BEGIN
 END
 GO
 
--- Ejecutar el procedimiento almacenado correcto
-EXEC sp_registrar_usuario 
-    @correo = 'admin@consulting-nomina.com',
-    @contrasena = 'Holaque123',
-    @fk_id_empleado = 1,
-    @fk_id_empresa = 1;
-
-
 --Listar
 CREATE PROCEDURE sp_listar_usuarios
     @SearchTerm NVARCHAR(255) = NULL,
@@ -162,27 +154,6 @@ BEGIN
     VALUES (@Expediente, @NuevoIdEmpleado);
 END
 GO
-
-EXEC sp_InsertarEmpleado 
-    @Nombres = 'Admin',
-    @Apellidos = 'Admin',
-    @TipoContrato = 'Contrato Indefinido',
-    @Puesto = 'Informatica',
-    @DpiPasaporte = '2955334851006',
-    @Salario = 0.00,  -- Salario Base
-    @CarnetIgss = '201364483588',
-    @CarnetIrtra = '2955334851006',
-    @FechaNacimiento = '2002-04-28',
-    @CorreoElectronico = 'admin@consulting-nomina.com',
-    @Telefono = '59541235',
-    @Expediente = NULL,  -- Documento en Expediente como NULL
-    @Fk_Id_Oficina = 1,
-    @Fk_Id_Profesion = 1,
-    @Fk_Id_Departamento = 1,
-    @Fk_Id_Rol = 4,
-    @Fk_Id_Estado = 1,
-    @Fk_Id_Empresa = 1;
-
 
 --Actuliazar
 CREATE PROCEDURE sp_actualizar_empleado
@@ -381,3 +352,53 @@ BEGIN
 END
 GO
 
+
+--EMPRESA
+
+--listar empresa
+create procedure sp_listar_empresa
+@criterio VARCHAR(255),
+@fkIdEmpresa INT
+AS
+BEGIN
+ 
+    SELECT 
+	    em.id_empresa, em.nombre, em.fecha_inicio, em.numero_telefono, em.direccion_empresa, em.correo_empresa
+	FROM 
+	    Empleado e
+	INNER JOIN
+	    Empresa em ON e.fk_id_rol = em.id_empresa
+	WHERE
+	    (e.id_empleado = @fkIdEmpresa) OR (e.id_empleado != @fkIdEmpresa AND em.id_empresa = e.fk_id_empresa);
+	   
+END
+GO;
+
+-- INSERTAR DATOS EN LOS SP
+--INSERTAR ADMINISTRADOR
+EXEC sp_InsertarEmpleado 
+    @Nombres = 'Admin',
+    @Apellidos = 'Admin',
+    @TipoContrato = 'Contrato Indefinido',
+    @Puesto = 'Informatica',
+    @DpiPasaporte = '2955334851006',
+    @Salario = 0.00,  -- Salario Base
+    @CarnetIgss = '201364483588',
+    @CarnetIrtra = '2955334851006',
+    @FechaNacimiento = '2002-04-28',
+    @CorreoElectronico = 'admin@consulting-nomina.com',
+    @Telefono = '59541235',
+    @Expediente = NULL,  -- Documento en Expediente como NULL
+    @Fk_Id_Oficina = 1,
+    @Fk_Id_Profesion = 1,
+    @Fk_Id_Departamento = 1,
+    @Fk_Id_Rol = 4,
+    @Fk_Id_Estado = 1,
+    @Fk_Id_Empresa = 1;
+
+-- INSERTAR USUARIO
+EXEC sp_registrar_usuario 
+    @correo = 'admin@consulting-nomina.com',
+    @contrasena = 'Holaque123',
+    @fk_id_empleado = 1,
+    @fk_id_empresa = 1;

@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
 
 <!-- Menú de Empresa -->
 <li class="nav-item">
-    <a class="nav-link" href="#"><i class="fas fa-building"></i> Empresa</a>
+    <a class="nav-link" href="empresa.php"><i class="fas fa-building"></i> Empresa</a>
 </li>
 
 <!-- Oficina agregada en Empresa -->

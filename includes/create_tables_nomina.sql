@@ -14,7 +14,10 @@ GO
 CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(255) NOT NULL,
-    fecha_inicio DATE NOT NULL
+    fecha_inicio DATE NOT NULL,
+    numero_telefono INT,
+    direccion_empresa TEXT,
+    correo_empresa NVARCHAR(255)
 );
 
 CREATE TABLE Oficina(
@@ -225,8 +228,8 @@ CREATE TABLE PolizaContable(
 
 --Llenar tablas
 --Oficina
-INSERT INTO Empresa(nombre, fecha_inicio) VALUES
-('T Consulting, S.A.', '2024-07-17');
+INSERT INTO Empresa(nombre, fecha_inicio, numero_telefono, direccion_empresa, correo_empresa) VALUES
+('T Consulting, S.A.', '2024-07-17', '58131409', 'Av. 9-00 Z.2', 'nomina-consulting@guatemala.com');
 
 
 INSERT INTO Oficina(nombre, fk_id_empresa) VALUES 
