@@ -27,14 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['BuscarEmpresa'])) {
     $criterio = $_POST['BuscarEmpresa'];
 }
 
-// Obtener el fk_id_empresa desde la sesión
-$fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
 
 // Procedimiento almacenado para listar empleados con filtro y fk_id_empresa
-$sql = "{CALL sp_listar_empresa(?, ?)}";
+$sql = "{CALL sp_listar_empresa(?)}";
 $params = array(
-    array($criterio, SQLSRV_PARAM_IN),
-    array($fk_id_empresa, SQLSRV_PARAM_IN) 
+    array($criterio, SQLSRV_PARAM_IN)
 );
 
 // Ejecutar la consulta
@@ -94,6 +91,7 @@ if ($stmt === false) {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="BuscarEmpresa" placeholder="Buscar por nombre de la empresa." value="<?php echo isset($_POST['BuscarEmpresa']) ? $_POST['BuscarEmpresa'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
+                    <a type="button" href="templates/empresas/agregar_empresa.php" class="btn btn-outline-secondar">Agregar usuario</a>
                 </div>
             </form>
             

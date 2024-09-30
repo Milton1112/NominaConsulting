@@ -355,22 +355,35 @@ GO
 
 --EMPRESA
 
+--insertar 
+
+CREATE PROCEDURE sp_insertar_empresa
+@nombre NVARCHAR(255),
+@telefono INT,
+@direccion TEXT,
+@correo NVARCHAR(255)
+AS
+BEGIN
+
+    INSERT INTO Empresa(nombre, fecha_inicio, numero_telefono, direccion_empresa, correo_empresa)
+	VALUES (@nombre, GETDATE(), @telefono, @direccion, @correo);
+
+END
+GO
+
+
 --listar empresa
 create procedure sp_listar_empresa
-@criterio VARCHAR(255),
-@fkIdEmpresa INT
+@criterio VARCHAR(255)
 AS
 BEGIN
  
     SELECT 
-	    em.id_empresa, em.nombre, em.fecha_inicio, em.numero_telefono, em.direccion_empresa, em.correo_empresa
+	    id_empresa, nombre, fecha_inicio, numero_telefono, direccion_empresa, correo_empresa
 	FROM 
-	    Empleado e
-	INNER JOIN
-	    Empresa em ON e.fk_id_rol = em.id_empresa
-	WHERE
-	    (e.id_empleado = @fkIdEmpresa) OR (e.id_empleado != @fkIdEmpresa AND em.id_empresa = e.fk_id_empresa);
-	   
+	    Empresa 
+     WHERE 
+        @criterio IS NULL OR nombre LIKE '%' + @criterio + '%';
 END
 GO;
 

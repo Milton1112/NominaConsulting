@@ -13,11 +13,11 @@ GO
 -- Creacion de tablas
 CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
-    nombre NVARCHAR(255) NOT NULL,
+    nombre NVARCHAR(255) NOT NULL UNIQUE,
     fecha_inicio DATE NOT NULL,
-    numero_telefono INT,
+    numero_telefono INT UNIQUE,
     direccion_empresa TEXT,
-    correo_empresa NVARCHAR(255)
+    correo_empresa NVARCHAR(255) UNIQUE
 );
 
 CREATE TABLE Oficina(
