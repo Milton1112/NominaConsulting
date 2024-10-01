@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
 
 <!-- Oficina agregada en Empresa -->
 <li class="nav-item">
-    <a class="nav-link" href="#"><i class="fas fa-map-marker-alt"></i> Oficinas</a> <!-- Oficina agregado -->
+    <a class="nav-link" href="oficina.php"><i class="fas fa-map-marker-alt"></i> Oficinas</a> <!-- Oficina agregado -->
 </li>
 
 <!-- Póliza Contable agregada en Empresa -->

@@ -27,7 +27,7 @@ CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(255) NOT NULL UNIQUE,
     fecha_inicio DATE NOT NULL,
-    numero_telefono INT UNIQUE,
+    numero_telefono INT UNIQUE UNIQUE,
     direccion_empresa TEXT,
     correo_empresa NVARCHAR(255) UNIQUE
 );
@@ -715,6 +715,27 @@ BEGIN
 END;
 GO
 
+--Actuliazar
+CREATE PROCEDURE sp_actualizar_empresa
+@id INT,
+@nombre NVARCHAR(255),
+@fecha DATE,
+@telefono INT,
+@direccion TEXT,
+@correo NVARCHAR(255)
+AS
+BEGIN
+
+    UPDATE 
+	    Empresa
+	SET
+	    nombre = @nombre, fecha_inicio = @fecha, numero_telefono = @telefono, direccion_empresa = @direccion, correo_empresa = @correo
+	WHERE
+	    id_empresa = @id
+
+END;
+GO
+
 --listar 
 create procedure sp_listar_empresa
 @criterio VARCHAR(255)
@@ -729,6 +750,29 @@ BEGIN
         @criterio IS NULL OR nombre LIKE '%' + @criterio + '%';
 END;
 GO
+
+--OFicinas
+--Listar
+CREATE PROCEDURE sp_listar_oficina
+@criterio NVARCHAR(25),
+@Fk_Id_Empresa INT, 
+AS
+BEGIN
+
+	SELECT 
+		o.id_oficina, o.nombre AS [Oficina] , e.nombre AS [Empresa]
+	FROM 
+		Oficina o
+	INNER JOIN 
+		Empresa e ON o.fk_id_empresa = e.id_empresa
+	WHERE
+        o.fk_id_empresa = @Fk_Id_Empresa
+	    AND (e.nombre LIKE '%' + @criterio + '%' 
+        OR o.nombre LIKE '%' + @criterio + '%');
+END;
+GO
+
+
 
 -- INSERTAR DATOS EN LOS SP
 --INSERTAR ADMINISTRADOR

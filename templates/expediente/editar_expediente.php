@@ -104,7 +104,7 @@ function cerrarConexion($stmts, $conn)
                 <form action="" method="POST" novalidate>
                     <input type="hidden" name="id_empleado" value="<?php echo $id_empleado; ?>">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="url_pdf" name="url_pdf" placeholder="No se ha cargado ningún archivo" required>
+                        <input type="text" class="form-control" id="url_pdf" name="url_pdf" placeholder="No se ha cargado ningún archivo" readonly required>
                         <a class="input-group-text bg-secondary text-white" onclick="loginpdf()">Subir CV</a>
                     </div>
 

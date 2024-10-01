@@ -113,7 +113,7 @@ function cerrarConexion($stmts, $conn)
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../salario.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../empresa.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
@@ -132,7 +132,7 @@ function cerrarConexion($stmts, $conn)
             </div>
             <div class="card-body">
                 <form action="" method="POST" novalidate>
-                    <input type="hidden" name="id_Salario" value="<?php echo $id_salario; ?>">
+                    <input type="hidden" name="id" value="<?php echo $id_empresa; ?>">
                     
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -175,5 +175,45 @@ function cerrarConexion($stmts, $conn)
     <script src="firebase-config.js"></script>
     <script src="expediente.js"></script>
 </body>
-
 </html>
+
+<?php
+
+function verificarActualizarEmpresa($conn){
+    if ($_SERVER["REQUEST_METHOD"] == "POST"){
+        $id = $_POST["id"];
+        $nombre = $_POST["nombre"];
+        $fecha = !empty($_POST["fecha"]) ? date('Y-m-d', strtotime($_POST["fecha"])) : NULL;
+        $telefono = $_POST["telefono"];
+        $direccion = $_POST["direccion"];
+        $correo = $_POST["email"];
+
+        // Crear parámetros para el procedimiento almacenado
+        $sp_params = array(
+            array($id, SQLSRV_PARAM_IN),
+            array($nombre, SQLSRV_PARAM_IN),
+            array($fecha, SQLSRV_PARAM_IN),
+            array($telefono, SQLSRV_PARAM_IN),
+            array($direccion, SQLSRV_PARAM_IN),
+            array($correo, SQLSRV_PARAM_IN)
+
+        );
+
+        // Llamar al procedimiento almacenado
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_empresa(?,?,?,?,?,?)}", $sp_params);
+
+        // Verificar si la ejecución fue exitosa
+        if ($sp_stmt) {
+            echo 'ctulizar';
+        } else {
+            echo "Error al ejecutar el procedimiento almacenado:<br>";
+            die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
+        }
+
+        // Liberar recursos
+        sqlsrv_free_stmt($sp_stmt);
+    }
+}
+
+verificarActualizarEmpresa($conn);
+?>
