@@ -1,16 +1,11 @@
-/*delete DATABASE
-USE master;
-GO
-*/
-
--- Asegurarse de que no hay conexiones activas a la base de datos
-CREATE DATABASE NominaConsulting
-USE NominaConsulting
+-- Crear la base de datos
+CREATE DATABASE NominaConsulting;
 GO
 
+USE NominaConsulting;
+GO
 
-
--- Creacion de tablas
+-- Crear tabla Clientes
 CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(255) NOT NULL UNIQUE,
@@ -19,6 +14,7 @@ CREATE TABLE Empresa (
     direccion_empresa TEXT,
     correo_empresa NVARCHAR(255) UNIQUE
 );
+GO
 
 CREATE TABLE Oficina(
     id_oficina INT IDENTITY(1,1) PRIMARY KEY,
@@ -26,29 +22,33 @@ CREATE TABLE Oficina(
     fk_id_empresa INT NOT NULL,
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
 );
+GO
 
 CREATE TABLE Departamento(
     id_departamento INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(20) NOT NULL,
 );
+GO
 
 CREATE TABLE Rol(
     id_rol INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(20) NOT NULL,
 );
-
+GO
 
 CREATE TABLE Estado(
     id_estado INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(20) NOT NULL,
 );
+GO
 
 CREATE TABLE Profesion(
     id_profesion INT IDENTITY(1,1) PRIMARY KEY,
 	nombre NVARCHAR(50) NOT NULL,
 	fk_id_empresa INT NOT NULL,
 	FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
-)
+);
+GO
 
 CREATE TABLE Empleado (
     id_empleado INT IDENTITY(1,1) PRIMARY KEY,
@@ -76,6 +76,7 @@ CREATE TABLE Empleado (
     FOREIGN KEY (fk_id_estado) REFERENCES Estado(id_estado),
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
 );
+GO
 
 CREATE TABLE Expediente(
     id_expediente INT IDENTITY(1,1) PRIMARY KEY,
@@ -83,6 +84,7 @@ CREATE TABLE Expediente(
     fk_id_empleado INT,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
@@ -93,6 +95,7 @@ CREATE TABLE Usuario (
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado),
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
 );
+GO
 
 CREATE TABLE Bono14(
     id_bono INT IDENTITY(1,1) PRIMARY KEY,
@@ -101,6 +104,7 @@ CREATE TABLE Bono14(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Aguinaldo(
     id_aguinaldo INT IDENTITY(1,1) PRIMARY KEY,
@@ -109,6 +113,7 @@ CREATE TABLE Aguinaldo(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Salario(
     id_salario INT IDENTITY(1,1) PRIMARY KEY,
@@ -117,6 +122,7 @@ CREATE TABLE Salario(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Anticipo(
     id_anticipo INT IDENTITY(1,1) PRIMARY KEY,
@@ -125,6 +131,7 @@ CREATE TABLE Anticipo(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Ausencia(
     id_ausencia INT IDENTITY(1,1) PRIMARY KEY,
@@ -134,6 +141,7 @@ CREATE TABLE Ausencia(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE HorasExtras(
     id_hora_extra INT IDENTITY(1,1) PRIMARY KEY,
@@ -143,16 +151,19 @@ CREATE TABLE HorasExtras(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Marca(
     id_marca INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(50) NOT NULL,
 );
+GO
 
 CREATE TABLE Categoria(
     id_categoria INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(50) NOT NULL,
 );
+GO
 
 CREATE TABLE Producto(
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
@@ -168,6 +179,7 @@ CREATE TABLE Producto(
     FOREIGN KEY (fk_id_categoria) REFERENCES Categoria(id_categoria),
     FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
 );
+GO
 
 CREATE TABLE VentaTienda(
     id_venta_tienda INT IDENTITY(1,1) PRIMARY KEY,
@@ -177,6 +189,7 @@ CREATE TABLE VentaTienda(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Comisiones(
     id_comisiones INT IDENTITY(1,1) PRIMARY KEY,
@@ -187,6 +200,7 @@ CREATE TABLE Comisiones(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Bonificacion(
     id_bonificacion INT IDENTITY(1,1) PRIMARY KEY,
@@ -195,6 +209,7 @@ CREATE TABLE Bonificacion(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Liquidacion(
     id_liquidacion INT IDENTITY(1,1) PRIMARY KEY,
@@ -204,6 +219,7 @@ CREATE TABLE Liquidacion(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE Prestamos(
     id_prestamo INT IDENTITY(1,1) PRIMARY KEY,
@@ -215,6 +231,7 @@ CREATE TABLE Prestamos(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
 
 CREATE TABLE PolizaContable(
     id_poliza_contable INT IDENTITY(1,1) PRIMARY KEY,
@@ -224,14 +241,27 @@ CREATE TABLE PolizaContable(
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
+GO
+
+-- Procedimiento para listar todos los detalles de pedidos
+CREATE PROCEDURE ListarDetallePedidos
+AS
+BEGIN
+    SELECT dp.IdDetallePedido, p.IdPedido, pr.NombreProducto, dp.Cantidad, dp.PrecioUnitario
+    FROM DetallePedidos dp
+    INNER JOIN Pedidos p ON dp.IdPedido = p.IdPedido
+    INNER JOIN Productos pr ON dp.IdProducto = pr.IdProducto;
+END;
+GO
 
 
 --Llenar tablas
---Oficina
+--Empresa
 INSERT INTO Empresa(nombre, fecha_inicio, numero_telefono, direccion_empresa, correo_empresa) VALUES
 ('T Consulting, S.A.', '2024-07-17', '58131409', 'Av. 9-00 Z.2', 'nomina-consulting@guatemala.com');
+GO
 
-
+--Oficina
 INSERT INTO Oficina(nombre, fk_id_empresa) VALUES 
 ('Recursos Humanos', 1),
 ('Contabilidad', 1), 
@@ -240,6 +270,7 @@ INSERT INTO Oficina(nombre, fk_id_empresa) VALUES
 ('TI', 1),
 ('Marketing', 1),
 ('Servicio al Cliente', 1);
+GO
 
 --Rol
 INSERT INTO Rol(nombre) VALUES 
@@ -248,6 +279,7 @@ INSERT INTO Rol(nombre) VALUES
 ('Gerente'),
 ('Administrador'),
 ('Contador');
+GO
 
 --Departamento
 INSERT INTO Departamento(nombre) VALUES
@@ -273,6 +305,7 @@ INSERT INTO Departamento(nombre) VALUES
 ('Suchitepéquez'),
 ('Totonicapán'),
 ('Zacapa');
+GO
 
 --Estado
 INSERT INTO Estado(nombre) VALUES
@@ -282,6 +315,7 @@ INSERT INTO Estado(nombre) VALUES
 ('Incapacitado'),
 ('Retirado'),
 ('Despedido');
+GO
 
 --Profesion
 INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
@@ -299,3 +333,4 @@ INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
 ('Marketing', 1),
 ('Ventas', 1),
 ('Científico de Datos', 1);
+GO

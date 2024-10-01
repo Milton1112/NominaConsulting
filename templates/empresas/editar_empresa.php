@@ -29,10 +29,16 @@ if (isset($_GET['id'])) {
 
         // Almacenar los datos del empleado en variables
         $nombre = $row['nombre'];
-        $fecha = $row['fecha_inicio'];
         $telefono = $row['numero_telefono'];
         $direccion = $row['direccion_empresa'];
         $correo = $row['correo_empresa'];
+        $fecha = $row['fecha_inicio'];
+        // Convertir el formato de la fecha a 'Y-m-d' si es un objeto de fecha o en otro formato
+        if ($fecha instanceof DateTime) {
+            $fecha = $fecha->format('Y-m-d');
+        } else {
+            $fecha = date('Y-m-d', strtotime($fecha));
+        }
         
     }else {
         echo "No se encontró el empleado.";
@@ -131,20 +137,32 @@ function cerrarConexion($stmts, $conn)
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" name="nnombre" value="<?php echo $nombre; ?>" required>
+                        <input type="text" class="form-control" name="nombre" value="<?php echo $nombre; ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label for="fecha" class="form-label">Fecha inicio</label>
-                        <input type="date" class="form-control" name="fecha" value="<?php echo $fecha; ?>"  required>
+                        <input type="date" class="form-control" name="fecha" value="<?php echo isset($fecha) ? $fecha : ''; ?>" required>
                     </div>
                 </div>
 
                 <div>
                      <div>
-                        <label for="salario_nuevo" class="form-label">Nuevo salario</label>
-                        <input type="number" class="form-control" name="salario_nuevo" required>
+                        <label for="telefono" class="form-label">Numero de telefono</label>
+                        <input type="number" class="form-control" name="telefono" value="<?php echo $telefono; ?>" required>
                     </div>
-                
+
+                    <div>
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" name="direccion" value="<?php echo $direccion; ?>" required>
+                    </div>
+
+                </div>
+
+                <div>
+                    <div>
+                        <label for="email" class="form-label">Correo electronico</label>
+                        <input type="email" class="form-control" name="email" value="<?php echo $correo; ?>" required>
+                    </div>
                 </div>
 
                     <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Expediente</button>
