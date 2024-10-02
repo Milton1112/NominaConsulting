@@ -52,7 +52,7 @@ if ($stmt === false) {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lista de Salario de empleados</title>
+    <title>Nomina-Consulting</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/global.css">
@@ -94,6 +94,8 @@ if ($stmt === false) {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="BuscarOficina" placeholder="Buscar por nombre." value="<?php echo isset($_POST['BuscarOFicina']) ? $_POST['BuscarOFicina'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
+                    <a type="button" href="templates/oficina/agregar_oficina.php" class="btn btn-outline-secondary">Crear oficna</a>
+
                 </div>
             </form>
             
