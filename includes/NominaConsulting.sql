@@ -260,86 +260,6 @@ CREATE TABLE PolizaContable(
 );
 GO
 
---Llenar tablas
---Empresa
-INSERT INTO Empresa(nombre, fecha_inicio, numero_telefono, direccion_empresa, correo_empresa) VALUES
-('T Consulting, S.A.', '2024-07-17', '58131409', 'Av. 9-00 Z.2', 'nomina-consulting@guatemala.com');
-GO
-
---Oficina
-INSERT INTO Oficina(nombre, fk_id_empresa) VALUES 
-('Recursos Humanos', 1),
-('Contabilidad', 1), 
-('Ventas', 1),
-('Producción', 1),
-('TI', 1),
-('Marketing', 1),
-('Servicio al Cliente', 1);
-GO
-
---Rol
-INSERT INTO Rol(nombre) VALUES 
-('Empleado'),
-('Jefe Inmediato'),
-('Gerente'),
-('Administrador'),
-('Contador');
-GO
-
---Departamento
-INSERT INTO Departamento(nombre) VALUES
-('Alta Verapaz'),
-('Baja Verapaz'),
-('Chimaltenango'),
-('Chiquimula'),
-('El Progreso'),
-('Escuintla'),
-('Guatemala'),
-('Huehuetenango'),
-('Izabal'),
-('Jalapa'),
-('Jutiapa'),
-('Petén'),
-('Quetzaltenango'),
-('Quiché'),
-('Retalhuleu'),
-('Sacatepéquez'),
-('San Marcos'),
-('Santa Rosa'),
-('Sololá'),
-('Suchitepéquez'),
-('Totonicapán'),
-('Zacapa');
-GO
-
---Estado
-INSERT INTO Estado(nombre) VALUES
-('Activo'),
-('Suspendido'),
-('Vacaciones'),
-('Incapacitado'),
-('Retirado'),
-('Despedido');
-GO
-
---Profesion
-INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
-('Ingeniero', 1),
-('Auditor', 1),
-('Diseñador Gráfico', 1),
-('Administrador', 1),
-('Contador', 1),
-('Programador', 1),
-('Analista de Sistemas', 1),
-('Consultor', 1),
-('Gerente de Proyecto', 1),
-('Técnico de Soporte', 1),
-('Especialista en Recursos Humanos', 1),
-('Marketing', 1),
-('Ventas', 1),
-('Científico de Datos', 1);
-GO
-
 --Procedimientos almacenandos
 
 --Empleados
@@ -823,9 +743,148 @@ END;
 GO
 
 --ACTUALIZAR
+CREATE PROCEDURE sp_actualizar_rol
+@nombre NVARCHAR(255),
+@id INT
+AS
+BEGIN
+
+    UPDATE 
+	    Rol
+	SET
+	    nombre = @nombre
+	WHERE
+	    id_rol = @id;
+END;
+GO
+
+--Departamento
+--listar
+CREATE PROCEDURE sp_listar_departamento
+@criterio NVARCHAR(255)
+
+AS
+BEGIN
+	select 
+		id_departamento, nombre 
+	from 
+		Departamento
+    WHERE 
+        nombre LIKE '%' + @criterio + '%';
+END;
+GO
+
+--Actualizar
+CREATE PROCEDURE sp_actualizar_departamento
+@nombre NVARCHAR(255),
+@id INT
+AS
+BEGIN
+    UPDATE
+	    Departamento
+	SET
+	   nombre = @nombre
+	WHERE
+	    id_departamento = @id
+
+END;
+GO
+
+--crear
+CREATE PROCEDURE sp_insertar_departamento
+@nombre NVARCHAR(255)
+AS
+BEGIN
+    
+    INSERT INTO Departamento(nombre)
+    VALUES (@nombre);
+END;
+GO
 
 
--- INSERTAR DATOS EN LOS SP
+-- INSERTAR DATOS
+--EMPRESA
+EXEC sp_insertar_empresa
+@nombre = 'T Consulting, S.A.',
+@telefono = '58131409',
+@direccion = 'Av. 9-00 Z.2',
+@correo = 'nomina-consulting@guatemala.com';
+GO
+
+--Oficina
+INSERT INTO Oficina(nombre, fk_id_empresa) VALUES 
+('Recursos Humanos', 1),
+('Contabilidad', 1), 
+('Ventas', 1),
+('Producción', 1),
+('TI', 1),
+('Marketing', 1),
+('Servicio al Cliente', 1);
+GO
+
+--Rol
+INSERT INTO Rol(nombre) VALUES 
+('Empleado'),
+('Jefe Inmediato'),
+('Gerente'),
+('Administrador'),
+('Contador');
+GO
+
+--Departamento
+INSERT INTO Departamento(nombre) VALUES
+('Alta Verapaz'),
+('Baja Verapaz'),
+('Chimaltenango'),
+('Chiquimula'),
+('El Progreso'),
+('Escuintla'),
+('Guatemala'),
+('Huehuetenango'),
+('Izabal'),
+('Jalapa'),
+('Jutiapa'),
+('Petén'),
+('Quetzaltenango'),
+('Quiché'),
+('Retalhuleu'),
+('Sacatepéquez'),
+('San Marcos'),
+('Santa Rosa'),
+('Sololá'),
+('Suchitepéquez'),
+('Totonicapán'),
+('Zacapa');
+GO
+
+--Estado
+INSERT INTO Estado(nombre) VALUES
+('Activo'),
+('Suspendido'),
+('Vacaciones'),
+('Incapacitado'),
+('Retirado'),
+('Despedido');
+GO
+
+--Profesion
+INSERT INTO Profesion(nombre, fk_id_empresa) VALUES
+('Ingeniero', 1),
+('Auditor', 1),
+('Diseñador Gráfico', 1),
+('Administrador', 1),
+('Contador', 1),
+('Programador', 1),
+('Analista de Sistemas', 1),
+('Consultor', 1),
+('Gerente de Proyecto', 1),
+('Técnico de Soporte', 1),
+('Especialista en Recursos Humanos', 1),
+('Marketing', 1),
+('Ventas', 1),
+('Científico de Datos', 1);
+GO
+
 --INSERTAR ADMINISTRADOR
 EXEC sp_InsertarEmpleado 
     @Nombres = 'Admin',
