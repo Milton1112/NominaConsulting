@@ -101,14 +101,14 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
             <div class="card-body">
                 <form action="" method="POST" novalidate>
 
-                <div class="col-md-6">
+                <div>
                             <label for="nombre" class="form-label">Nombre</label>
                             <input type="nombre" class="form-control" name="nombre" placeholder="Nombre oficina" required>
                             <div class="invalid-feedback">Por favor, ingresa un nombre a la Oficna.</div>
                         
                        </div>
 
-                    <div class="col-md-6">
+                    <div>
                             <label for="fkIdEmpresa" class="form-label">Empresa</label>
                             <select class="form-control" id="fkIdEmpresa" name="fkIdEmpresa" required>
                                 <option value="">Seleccione una empresa</option>
@@ -134,7 +134,38 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
 
 <?php
 
+function verificarInfoEmpleado($conn){
+    
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Capturar datos del formulario
+        $nombres = $_POST["nombre"];
+        $empresa = $_POST["fkIdEmpresa"];
 
+        // Definir los parámetros del procedimiento almacenado con SQLSRV_PARAM_IN
+        $sp_params = array(
+            array($nombres, SQLSRV_PARAM_IN),
+            array($empresa, SQLSRV_PARAM_IN)
+        );
 
+        // Llamar al procedimiento almacenado
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_oficina(?, ?)}", $sp_params);
+
+        // Verificar si la ejecución fue exitosa
+        if ($sp_stmt) {
+            
+            echo '<script>alert("Se ha creado la oficina."); window.location.href = "../../oficina.php";</script>';
+
+        } else {
+            echo "Error al ejecutar el procedimiento almacenado:<br>";
+            die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
+        }
+
+        // Liberar recursos
+        sqlsrv_free_stmt($sp_stmt);
+
+    }
+}
+
+verificarInfoEmpleado($conn);
 ?>
 

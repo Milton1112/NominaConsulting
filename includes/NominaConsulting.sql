@@ -772,7 +772,36 @@ BEGIN
 END;
 GO
 
+--insertar
+CREATE PROCEDURE sp_insertar_oficina
+@nombre NVARCHAR(255),
+@fk_id_empresa INT
+AS
+BEGIN
 
+    INSERT INTO Oficina
+	    (nombre, fk_id_empresa)
+	VALUES
+	    (@nombre, @fk_id_empresa);
+
+END;
+GO
+
+--actualizar
+CREATE PROCEDURE sp_actulizar_oficina
+@nombre NVARCHAR(255),
+@id INT
+AS
+BEGIN
+
+    UPDATE 
+	    Oficina
+	SET
+	   nombre = @nombre
+	WHERE
+	   id_oficina = @id;
+END;
+GO
 
 -- INSERTAR DATOS EN LOS SP
 --INSERTAR ADMINISTRADOR
