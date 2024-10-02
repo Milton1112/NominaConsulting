@@ -803,6 +803,55 @@ BEGIN
 END;
 GO
 
+--Rol
+--Listar
+CREATE PROCEDURE sp_listar_rol
+@criterio NVARCHAR(255)
+AS
+BEGIN
+  
+    SELECT 
+        id_rol, nombre
+	FROM
+	    Rol
+	WHERE
+	    nombre LIKE '%' + @criterio + '%' 
+
+END;
+GO
+
+--crear
+CREATE PROCEDURE sp_crear_rol
+@rol NVARCHAR(255)
+AS
+BEGIN
+
+    INSERT INTO
+	    Rol(rol)
+	VALUES
+	    (@rol);
+
+END;
+GO
+
+--ACTUALIZAR
+CREATE PROCEDURE sp_crear_rol
+@rol NVARCHAR(255)
+
+AS
+BEGIN
+
+    INSERT INTO
+	    Rol(rol)
+	VALUES
+	    (@rol);
+
+END;
+GO
+
+
+--
+
 -- INSERTAR DATOS EN LOS SP
 --INSERTAR ADMINISTRADOR
 EXEC sp_InsertarEmpleado 
@@ -833,4 +882,3 @@ EXEC sp_registrar_usuario
     @fk_id_empleado = 1,
     @fk_id_empresa = 1;
 GO
-

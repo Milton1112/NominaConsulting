@@ -23,18 +23,14 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
 $criterio = "";
 
 // Verificar si el usuario ha enviado una búsqueda
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarEmpleado'])) {
-    $criterio = $_POST['buscarEmpleado'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarRol'])) {
+    $criterio = $_POST['buscarRol'];
 }
 
-// Obtener el fk_id_empresa desde la sesión
-$fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
-
 // Procedimiento almacenado para listar empleados con filtro y fk_id_empresa
-$sql = "{CALL sp_listar_empleados_con_filtro(?, ?)}";
+$sql = "{CALL sp_listar_rol(?)}";
 $params = array(
-    array($criterio, SQLSRV_PARAM_IN),
-    array($fk_id_empresa, SQLSRV_PARAM_IN) // Pasar fk_id_empresa como parámetro
+    array($criterio, SQLSRV_PARAM_IN)
 );
 
 // Ejecutar la consulta
@@ -66,6 +62,20 @@ if ($stmt === false) {
         .table-hover tbody tr:hover {
             background-color: #DDE2FF;
         }
+        .table tbody tr {
+            vertical-align: middle;
+        }
+        .btn-info {
+            color: #fff;
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+        .input-group .form-control {
+            border-radius: 0.25rem 0 0 0.25rem;
+        }
+        .input-group .btn {
+            border-radius: 0 0.25rem 0.25rem 0;
+        }
     </style>
 </head>
 <body>
@@ -75,7 +85,7 @@ if ($stmt === false) {
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Lista de Empleados</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Lista de Roles</h1>
             </div>
         </div>
     </header>
@@ -84,41 +94,29 @@ if ($stmt === false) {
         <div class="mx-auto p-4 bg-white rounded">
             <form method="POST" action="">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, puesto, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
+                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar el rol" value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
-                    <a href="templates/empleado/agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
+                    <a href="templates/rol/agregar_rol.php" class="btn btn-outline-secondary ms-2">Agregar</a>
                 </div>
             </form>
             
             <div class="table-responsive">
                 <table class="table table-hover table-borderless align-middle">
-                    <thead class="bg-gradient bg-primary text-white rounded">
+                    <thead>
                         <tr class="text-center">
-                            <th>#</th>
-                            <th>Nombres</th>
-                            <th>Puesto</th>
-                            <th>DPI/Pasaporte</th>
-                            <th>Teléfono</th>
-                            <th>Email</th>
-                            <th>Profesión</th>
-                            <th>Departamento</th>
+                            <th>ID</th>
+                            <th>Rol</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (sqlsrv_has_rows($stmt)) : ?>
                             <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
-                                <tr class="shadow-sm rounded bg-light mb-2">
-                                    <td class="text-center fw-bold"><?php echo $row['id_empleado']; ?></td>
-                                    <td class="fw-bold text-primary"><?php echo $row['nombres'] . ', ' . $row['apellidos']; ?></td>
-                                    <td><?php echo $row['puesto']; ?></td>
-                                    <td><?php echo $row['dpi_pasaporte']; ?></td>
-                                    <td><?php echo $row['numero_telefono']; ?></td>
-                                    <td><?php echo $row['correo_electronico']; ?></td>
-                                    <td><?php echo $row['profesion']; ?></td>
-                                    <td><?php echo $row['departamento']; ?></td>
-                                    <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='templates/empleado/editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
+                                <tr class="text-center">
+                                    <td class="fw-bold"><?php echo $row['id_rol']; ?></td>
+                                    <td><?php echo $row['nombre']; ?></td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm rounded-pill px-3" onclick="window.location.href='templates/rol/editar_rol.php?id=<?php echo $row['id_rol']; ?>'">
                                             <i class="fas fa-pencil-alt"></i> Editar
                                         </button>
                                     </td>
@@ -126,7 +124,7 @@ if ($stmt === false) {
                             <?php endwhile; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="11" class="text-center text-muted py-3">No se encontraron empleados</td>
+                                <td colspan="3" class="text-center text-muted py-3">No se encontraron los roles</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

@@ -33,17 +33,7 @@ function cerrarConexion($stmts, $conn)
     }
     sqlsrv_close($conn);
 }
-
-// Obtener el fk_id_empresa desde la sesión
-$fk_id_empresa = $_SESSION['fk_id_empresa']; // Asegúrate de que 'fk_id_empresa' esté en la sesión
-
-// Consulta para obtener las empresas de forma segura usando parámetros
-$sqlEmpresa = "SELECT id_empresa, nombre FROM Empresa;";
-$params = array($fk_id_empresa);
-$stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
-
 ?>
-
 
 <!doctype html>
 <html lang="es">
@@ -81,11 +71,11 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../oficina.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../rol.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Agregar Oficna</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Agregar Rol</h1>
             </div>
         </div>
     </header>
@@ -93,7 +83,7 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
     <div class="container mt-5 mb-5">
         <div class="card mx-auto rounded" style="max-width: 600px;">
             <div class="card-header text-center bg-primary text-white rounded-top">
-                Formulario de Empleado
+                Formulario de Rol
             </div>
             <div class="alert alert-danger p-2 mt-2" role="alert" id="alertError" style="display: none;">
                 <p id="textAlert" class="text-center"></p>
@@ -103,25 +93,14 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
 
                 <div>
                             <label for="nombre" class="form-label">Nombre</label>
-                            <input type="nombre" class="form-control" name="nombre" placeholder="Nombre oficina" required>
-                            <div class="invalid-feedback">Por favor, ingresa un nombre a la Oficna.</div>
+                            <input type="nombre" class="form-control" name="nombre" placeholder="Rol" required>
+                            <div class="invalid-feedback">Por favor, ingresa el rol.</div>
                         
-                       </div>
+                </div>
 
-                    <div>
-                            <label for="fkIdEmpresa" class="form-label">Empresa</label>
-                            <select class="form-control" id="fkIdEmpresa" name="fkIdEmpresa" required>
-                                <option value="">Seleccione una empresa</option>
-                                <?php
-                                while ($row = sqlsrv_fetch_array($stmtEmpresa, SQLSRV_FETCH_ASSOC)) {
-                                    echo '<option value="' . $row["id_empresa"] . '">' . $row["nombre"] . '</option>';
-                                }
-                                ?>
-                            </select>
-                            <div class="invalid-feedback">Por favor, selecciona una empresa.</div>
-                        </div>
+                    
                         
-                    <button type="submit" class="btn btn-primary w-100">Crear empleado</button>
+                    <button type="submit" style="margin-top:30px;" class="btn btn-primary w-100">Crear rol</button>
                 </form>
             </div>
         </div>
@@ -134,26 +113,22 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa, $params);
 
 <?php
 
-function verificarInfoEmpleado($conn){
-    
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+function agregarRol($conn){
+    if ($_SERVER["REQUEST_METHOD"] == "POST"){
         // Capturar datos del formulario
-        $nombres = $_POST["nombre"];
-        $empresa = $_POST["fkIdEmpresa"];
+        $rol = $_POST["nombre"];
 
-        // Definir los parámetros del procedimiento almacenado con SQLSRV_PARAM_IN
         $sp_params = array(
-            array($nombres, SQLSRV_PARAM_IN),
-            array($empresa, SQLSRV_PARAM_IN)
+            array($nombres, SQLSRV_PARAM_IN)
         );
 
         // Llamar al procedimiento almacenado
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_oficina(?, ?)}", $sp_params);
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_oficina(?)}", $sp_params);
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
             
-            echo '<script>alert("Se ha creado la oficina."); window.location.href = "../../oficina.php";</script>';
+            echo '<script>alert("Se ha creado el Rol."); window.location.href = "../../rol.php";</script>';
 
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
@@ -162,9 +137,9 @@ function verificarInfoEmpleado($conn){
 
         // Liberar recursos
         sqlsrv_free_stmt($sp_stmt);
-
     }
 }
 
-verificarInfoEmpleado($conn);
+
+agregarRol($conn);
 ?>
