@@ -119,11 +119,11 @@ function agregarRol($conn){
         $rol = $_POST["nombre"];
 
         $sp_params = array(
-            array($nombres, SQLSRV_PARAM_IN)
+            array($rol, SQLSRV_PARAM_IN)
         );
 
         // Llamar al procedimiento almacenado
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_oficina(?)}", $sp_params);
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_crear_rol(?)}", $sp_params);
 
         // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {

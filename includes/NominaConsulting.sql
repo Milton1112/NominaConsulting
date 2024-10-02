@@ -4,22 +4,22 @@ USE master;
 GO
 
 -- Terminar las conexiones activas a la base de datos
-ALTER DATABASE name_database
+ALTER DATABASE NominaConsulting
 SET SINGLE_USER
 WITH ROLLBACK IMMEDIATE;
 GO
 
 -- Eliminar la base de datos
-DROP DATABASE name_database;
+DROP DATABASE NominaConsulting;
 GO
 
 */
 
 -- Crear la base de datos
-CREATE DATABASE Prueba;
+CREATE DATABASE NominaConsulting;
 GO
 
-USE Prueba;
+USE NominaConsulting;
 GO
 
 -- Crear tabla Clientes
@@ -27,7 +27,7 @@ CREATE TABLE Empresa (
     id_empresa INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(255) NOT NULL UNIQUE,
     fecha_inicio DATE NOT NULL,
-    numero_telefono INT UNIQUE UNIQUE,
+    numero_telefono INT UNIQUE,
     direccion_empresa TEXT,
     correo_empresa NVARCHAR(255) UNIQUE
 );
@@ -259,18 +259,6 @@ CREATE TABLE PolizaContable(
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
 GO
-
--- Procedimiento para listar todos los detalles de pedidos
-CREATE PROCEDURE ListarDetallePedidos
-AS
-BEGIN
-    SELECT dp.IdDetallePedido, p.IdPedido, pr.NombreProducto, dp.Cantidad, dp.PrecioUnitario
-    FROM DetallePedidos dp
-    INNER JOIN Pedidos p ON dp.IdPedido = p.IdPedido
-    INNER JOIN Productos pr ON dp.IdProducto = pr.IdProducto;
-END;
-GO
-
 
 --Llenar tablas
 --Empresa
@@ -755,7 +743,7 @@ GO
 --Listar
 CREATE PROCEDURE sp_listar_oficina
 @criterio NVARCHAR(25),
-@Fk_Id_Empresa INT, 
+@Fk_Id_Empresa INT
 AS
 BEGIN
 
@@ -827,7 +815,7 @@ AS
 BEGIN
 
     INSERT INTO
-	    Rol(rol)
+	    Rol(nombre)
 	VALUES
 	    (@rol);
 
@@ -835,22 +823,7 @@ END;
 GO
 
 --ACTUALIZAR
-CREATE PROCEDURE sp_crear_rol
-@rol NVARCHAR(255)
 
-AS
-BEGIN
-
-    INSERT INTO
-	    Rol(rol)
-	VALUES
-	    (@rol);
-
-END;
-GO
-
-
---
 
 -- INSERTAR DATOS EN LOS SP
 --INSERTAR ADMINISTRADOR
