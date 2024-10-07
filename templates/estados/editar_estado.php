@@ -18,7 +18,7 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     // Consulta para obtener los datos del empleado
-    $sql = "SELECT * FROM Departamento WHERE id_departamento = ?";
+    $sql = "SELECT * FROM Estado WHERE id_estado = ?";
     $params = array($id);
     $stmt = sqlsrv_query($conn, $sql, $params);
 
@@ -28,7 +28,6 @@ if (isset($_GET['id'])) {
 
         // Almacenar los datos del empleado en variables
         $nombre = $row['nombre'];
-
         
     }else {
         echo "No se encontró el empleado.";
@@ -101,11 +100,11 @@ function cerrarConexion($stmts, $conn)
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../departamento.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../estado.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Actualizar Departamento</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Actualizar Estado</h1>
             </div>
         </div>
     </header>
@@ -113,7 +112,7 @@ function cerrarConexion($stmts, $conn)
     <div class="container mt-5 mb-5">
         <div class="card mx-auto rounded" style="max-width: 600px;">
             <div class="card-header text-center bg-primary text-white rounded-top">
-                Formulario de Oficna
+                Formulario de Estado
             </div>
             <div class="alert alert-danger p-2 mt-2" role="alert" id="alertError" style="display: none;">
                 <p id="textAlert" class="text-center"></p>
@@ -124,13 +123,13 @@ function cerrarConexion($stmts, $conn)
                     
                 <div>
                     <div>
-                        <label for="nombre" class="form-label">Departamento:</label>
+                        <label for="nombre" class="form-label">Estado</label>
                         <input type="text" class="form-control" name="nombre" value="<?php echo $nombre; ?>" required>
                     </div>
                 </div>
 
 
-                    <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Departamento</button>
+                    <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar estado</button>
                 </form>
             </div>
         </div>
@@ -143,11 +142,10 @@ function cerrarConexion($stmts, $conn)
 
 </html>
 
-
 <?php
 
 
-function actualizarDepartamento($conn){
+function actualizarEstado($conn){
 
     if ($_SERVER["REQUEST_METHOD"] == "POST"){
         $id = $_POST["id"];
@@ -160,12 +158,12 @@ function actualizarDepartamento($conn){
         );
 
          // Llamar al procedimiento almacenado
-         $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_departamento(?,?)}", $sp_params);
+         $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_estado(?,?)}", $sp_params);
 
           // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
 
-            echo '<script>alert("Se ha actualizado el Departamento."); window.location.href = "../../departamento.php";</script>';
+            echo '<script>alert("Se ha actualizado el estado."); window.location.href = "../../estado.php";</script>';
         
         }else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
@@ -176,6 +174,6 @@ function actualizarDepartamento($conn){
 }
 
 
-actualizarDepartamento($conn);
+actualizarEstado($conn);
 ?>
 

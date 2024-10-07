@@ -79,10 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="#"><i class="fas fa-clock"></i> Horas Extras</a>
         <a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> Liquidación</a>
         <a class="dropdown-item" href="#"><i class="fas fa-file-invoice-dollar"></i> Préstamos</a> <!-- Prestamos agregado -->
-        <a class="dropdown-item" href="#"><i class="fas fa-user-graduate"></i> Profesiones</a>
+        <a class="dropdown-item" href="profesion.php"><i class="fas fa-user-graduate"></i> Profesiones</a>
         <a class="dropdown-item" href="departamento.php"><i class="fas fa-building"></i> Departamentos</a>
         <a class="dropdown-item" href="rol.php"><i class="fas fa-user-tag"></i> Roles</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-info-circle"></i> Estados</a>
+        <a class="dropdown-item" href="estado.php"><i class="fas fa-info-circle"></i> Estados</a>
     </div>
 </li>
 

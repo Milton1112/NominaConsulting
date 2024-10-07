@@ -14,33 +14,6 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
     SignIn2(); // Redirige al login si no está logueado
 }
 
-// Verificar si se proporcionó el ID del empleado
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    // Consulta para obtener los datos del empleado
-    $sql = "SELECT * FROM Departamento WHERE id_departamento = ?";
-    $params = array($id);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    // Verificar si se obtuvo un resultado
-    if ($stmt && sqlsrv_has_rows($stmt)) {
-        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-
-        // Almacenar los datos del empleado en variables
-        $nombre = $row['nombre'];
-
-        
-    }else {
-        echo "No se encontró el empleado.";
-        exit;
-    }
-
-} else {
-    die("No se proporcionó el ID.");
-}
-
-$user = $_SESSION['correo_usuario'];
-
 // Obtener la conexión
 $conn = getConnection();
 
@@ -49,16 +22,58 @@ if (!$conn) {
     die("Error al conectar a la base de datos.");
 }
 
-// Función para liberar recursos y cerrar la conexión
-function cerrarConexion($stmts, $conn)
-{
-    foreach ($stmts as $stmt) {
-        if ($stmt !== false && $stmt !== null) {
-            sqlsrv_free_stmt($stmt); // Asegurarse de que $stmt no sea null
+// Verificar si se proporcionó el ID de la profesión
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    
+    // Consulta para obtener los datos de la profesión
+    $sql = "SELECT * FROM Profesion WHERE id_profesion = ?";
+    $params = array($id);
+    $stmt = sqlsrv_query($conn, $sql, $params);
+
+    // Verificar si se obtuvo un resultado
+    if ($stmt && sqlsrv_has_rows($stmt)) {
+        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+
+        // Almacenar los datos de la profesión en variables
+        $nombre = $row['nombre'];
+        
+    } else {
+        echo "No se encontró la profesión.";
+        exit;
+    }
+} else {
+    die("No se proporcionó el ID.");
+}
+
+// Función para actualizar la profesión
+function actualizarProfesion($conn) {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $id = $_POST["id"];
+        $nombre = $_POST["nombre"];
+
+        // Crear parámetros para el procedimiento almacenado
+        $sp_params = array(
+            array($nombre, SQLSRV_PARAM_IN),
+            array($id, SQLSRV_PARAM_IN)
+        );
+
+        // Llamar al procedimiento almacenado
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_profesion(?, ?)}", $sp_params);
+
+        // Verificar si la ejecución fue exitosa
+        if ($sp_stmt) {
+            echo '<script>alert("Se ha actualizado la profesión."); window.location.href = "../../profesion.php";</script>';
+        } else {
+            echo "Error al ejecutar el procedimiento almacenado:<br>";
+            die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
         }
     }
-    sqlsrv_close($conn);
 }
+
+// Llamar a la función para actualizar la profesión
+actualizarProfesion($conn);
+
 ?>
 
 <!doctype html>
@@ -70,7 +85,6 @@ function cerrarConexion($stmts, $conn)
     <title>Nomina-Consulting</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../../assets/css/global.css">
-    <link rel="stylesheet" href="../../assets/css/registrar_empleado.css">
     <script>
         // Función para validar el formulario
         function validarFormulario(event) {
@@ -85,27 +99,23 @@ function cerrarConexion($stmts, $conn)
                 textAlert.textContent = 'Por favor, completa todos los campos.';
                 alertError.style.display = 'block'; // Mostrar el mensaje de error
             } else {
-                // ocultar la alerta
+                // Ocultar la alerta
                 const alertError = document.getElementById('alertError');
                 alertError.style.display = 'none';
             }
             form.classList.add('was-validated'); // Agrega clase para mostrar los estilos de validación
         }
     </script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../departamento.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../profesion.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Actualizar Departamento</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Actualizar Profesión</h1>
             </div>
         </div>
     </header>
@@ -113,7 +123,7 @@ function cerrarConexion($stmts, $conn)
     <div class="container mt-5 mb-5">
         <div class="card mx-auto rounded" style="max-width: 600px;">
             <div class="card-header text-center bg-primary text-white rounded-top">
-                Formulario de Oficna
+                Formulario de Profesión
             </div>
             <div class="alert alert-danger p-2 mt-2" role="alert" id="alertError" style="display: none;">
                 <p id="textAlert" class="text-center"></p>
@@ -122,60 +132,18 @@ function cerrarConexion($stmts, $conn)
                 <form action="" method="POST" novalidate>
                     <input type="hidden" name="id" value="<?php echo $id; ?>">
                     
-                <div>
                     <div>
-                        <label for="nombre" class="form-label">Departamento:</label>
+                        <label for="nombre" class="form-label">Nombre de la Profesión</label>
                         <input type="text" class="form-control" name="nombre" value="<?php echo $nombre; ?>" required>
                     </div>
-                </div>
 
-
-                    <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Departamento</button>
+                    <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Profesión</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="expediente.js"></script>
 </body>
 
 </html>
-
-
-<?php
-
-
-function actualizarDepartamento($conn){
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST"){
-        $id = $_POST["id"];
-        $nombre = $_POST["nombre"];
-
-        // Crear parámetros para el procedimiento almacenado
-        $sp_params = array(
-            array($nombre, SQLSRV_PARAM_IN),
-            array($id, SQLSRV_PARAM_IN)
-        );
-
-         // Llamar al procedimiento almacenado
-         $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_departamento(?,?)}", $sp_params);
-
-          // Verificar si la ejecución fue exitosa
-        if ($sp_stmt) {
-
-            echo '<script>alert("Se ha actualizado el Departamento."); window.location.href = "../../departamento.php";</script>';
-        
-        }else {
-            echo "Error al ejecutar el procedimiento almacenado:<br>";
-            die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
-        }
-
-    }
-}
-
-
-actualizarDepartamento($conn);
-?>
-

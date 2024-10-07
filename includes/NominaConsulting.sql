@@ -801,6 +801,115 @@ BEGIN
 END;
 GO
 
+--Estado
+--Listar
+CREATE PROCEDURE sp_listar_estado
+@criterio NVARCHAR(255)
+AS
+BEGIN
+	SELECT 
+		id_estado, nombre
+	FROM 
+		Estado
+	WHERE
+	    nombre LIKE '%' + @criterio + '%';
+END;
+GO
+
+--Crear
+CREATE PROCEDURE sp_insertar_estado
+@nombre NVARCHAR(255)
+AS
+BEGIN
+
+    INSERT INTO Estado(nombre)
+	VALUES (@nombre);
+
+END;
+GO
+
+--Actualizar
+CREATE PROCEDURE sp_actualizar_estado
+@nombre NVARCHAR(255),
+@id INT
+AS
+BEGIN
+
+    UPDATE
+	    Estado
+	SET
+	    nombre = @nombre
+
+	WHERE
+	    id_estado = @id
+
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_estado
+@id INT
+AS
+BEGIN
+
+    DELETE FROM 
+	    Estado
+	WHERE
+	    id_estado = @id;
+END;
+GO
+
+--Profesion
+--Listar
+CREATE PROCEDURE sp_listar_profesion
+@criterio NVARCHAR(255),
+@IdEmpresa INT
+AS
+BEGIN
+	select 
+		p.id_profesion AS id, p.nombre, e.nombre AS Empresa 
+	from 
+		Profesion p
+	INNER JOIN 
+	    Empresa e ON p.fk_id_empresa = e.id_empresa
+	WHERE
+	    p.nombre LIKE '%' + @criterio + '%'
+	OR
+	    e.nombre LIKE '%' + @criterio + '%';;
+END;
+GO
+
+--actualizar
+CREATE PROCEDURE sp_actualizar_profesion
+@nombre NVARCHAR(255),
+@id INT
+AS
+BEGIN
+
+    UPDATE
+	    Profesion
+	SET
+	    nombre = @nombre
+	WHERE
+	    id_profesion = @id
+
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_profesion
+@id INT
+AS
+BEGIN
+
+    DELETE FROM
+	    Profesion
+	WHERE
+	    id_profesion = @id
+
+END;
+GO
+
 
 -- INSERTAR DATOS
 --EMPRESA

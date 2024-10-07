@@ -1,5 +1,4 @@
 <?php
-
 // Incluir el archivo de conexión
 include_once '../../includes/db_connect.php';
 include_once '../../includes/functions.php';
@@ -12,31 +11,6 @@ if (session_status() == PHP_SESSION_NONE) {
 // Verificar si la sesión está activa
 if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== true) {
     SignIn2(); // Redirige al login si no está logueado
-}
-
-// Verificar si se proporcionó el ID del empleado
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    // Consulta para obtener los datos del empleado
-    $sql = "SELECT * FROM Departamento WHERE id_departamento = ?";
-    $params = array($id);
-    $stmt = sqlsrv_query($conn, $sql, $params);
-
-    // Verificar si se obtuvo un resultado
-    if ($stmt && sqlsrv_has_rows($stmt)) {
-        $row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
-
-        // Almacenar los datos del empleado en variables
-        $nombre = $row['nombre'];
-
-        
-    }else {
-        echo "No se encontró el empleado.";
-        exit;
-    }
-
-} else {
-    die("No se proporcionó el ID.");
 }
 
 $user = $_SESSION['correo_usuario'];
@@ -53,13 +27,15 @@ if (!$conn) {
 function cerrarConexion($stmts, $conn)
 {
     foreach ($stmts as $stmt) {
-        if ($stmt !== false && $stmt !== null) {
-            sqlsrv_free_stmt($stmt); // Asegurarse de que $stmt no sea null
+        if ($stmt !== false) {
+            sqlsrv_free_stmt($stmt);
         }
     }
     sqlsrv_close($conn);
 }
+
 ?>
+
 
 <!doctype html>
 <html lang="es">
@@ -92,20 +68,16 @@ function cerrarConexion($stmts, $conn)
             form.classList.add('was-validated'); // Agrega clase para mostrar los estilos de validación
         }
     </script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 </head>
 
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../departamento.php" class="btn btn-outline-light d-flex align-items-center">
+            <a href="../../estado.php" class="btn btn-outline-light d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Actualizar Departamento</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Agregar Estado</h1>
             </div>
         </div>
     </header>
@@ -113,69 +85,62 @@ function cerrarConexion($stmts, $conn)
     <div class="container mt-5 mb-5">
         <div class="card mx-auto rounded" style="max-width: 600px;">
             <div class="card-header text-center bg-primary text-white rounded-top">
-                Formulario de Oficna
+                Formulario de Estado
             </div>
             <div class="alert alert-danger p-2 mt-2" role="alert" id="alertError" style="display: none;">
                 <p id="textAlert" class="text-center"></p>
             </div>
             <div class="card-body">
                 <form action="" method="POST" novalidate>
-                    <input type="hidden" name="id" value="<?php echo $id; ?>">
-                    
+
                 <div>
-                    <div>
-                        <label for="nombre" class="form-label">Departamento:</label>
-                        <input type="text" class="form-control" name="nombre" value="<?php echo $nombre; ?>" required>
-                    </div>
+                    <label for="nombre" class="form-label">Estado</label>
+                    <input type="nombre" class="form-control" name="nombre" placeholder="Nombre estado" required>
+                    <div class="invalid-feedback">Por favor, ingresa un nombre al estado.</div>    
                 </div>
-
-
-                    <button type="submit" style="margin-top: 20px;" class="btn btn-primary w-100" onclick="validarFormulario(event)">Actualizar Departamento</button>
+                        
+                    <button type="submit" style="margin-top: 15px;" class="btn btn-primary w-100">Crear estado</button>
                 </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="expediente.js"></script>
 </body>
 
 </html>
 
-
 <?php
 
+function verificarInfoEstado($conn){
+    
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Capturar datos del formulario
+        $nombres = $_POST["nombre"];
 
-function actualizarDepartamento($conn){
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST"){
-        $id = $_POST["id"];
-        $nombre = $_POST["nombre"];
-
-        // Crear parámetros para el procedimiento almacenado
+        // Definir los parámetros del procedimiento almacenado con SQLSRV_PARAM_IN
         $sp_params = array(
-            array($nombre, SQLSRV_PARAM_IN),
-            array($id, SQLSRV_PARAM_IN)
+            array($nombres, SQLSRV_PARAM_IN)
         );
 
-         // Llamar al procedimiento almacenado
-         $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_departamento(?,?)}", $sp_params);
+        // Llamar al procedimiento almacenado
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_estado(?)}", $sp_params);
 
-          // Verificar si la ejecución fue exitosa
+        // Verificar si la ejecución fue exitosa
         if ($sp_stmt) {
+            
+            echo '<script>alert("Se ha creado el estado."); window.location.href = "../../estado.php";</script>';
 
-            echo '<script>alert("Se ha actualizado el Departamento."); window.location.href = "../../departamento.php";</script>';
-        
-        }else {
+        } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
         }
 
+        // Liberar recursos
+        sqlsrv_free_stmt($sp_stmt);
+
     }
 }
 
-
-actualizarDepartamento($conn);
+verificarInfoEstado($conn);
 ?>
-
