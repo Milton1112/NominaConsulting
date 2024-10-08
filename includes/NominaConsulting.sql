@@ -956,6 +956,27 @@ BEGIN
 END;
 GO
 
+--actualizar
+CREATE PROCEDURE sp_actualizar_horas_extras
+@id INT,
+@horas INT,
+@tipo TEXT,
+@fecha DATE
+AS
+BEGIN
+
+    UPDATE
+	    HorasExtras
+	SET
+	    horas = @horas,
+		tipo = @tipo,
+		fecha = @fecha
+	WHERE
+	    id_hora_extra = @id;
+
+END;
+GO
+
 --Eliminar
 CREATE PROCEDURE sp_eliminar_horas_extras
 @id INT

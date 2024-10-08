@@ -195,8 +195,8 @@ function agregarHoraExtra($conn){
          // Llamar al procedimiento almacenado
         $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_horas_extras(?,?,?,?)}", $sp_params);
 
-         // Verificar si la ejecución fue exitosa
-         if ($sp_stmt) {
+        // Verificar si la ejecución fue exitosa
+        if ($sp_stmt) {
             echo '<script>alert("Al empleado se le agrego sus horas extras."); window.location.href = "../../hora_extra.php";</script>';
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
