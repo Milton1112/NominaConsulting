@@ -910,6 +910,64 @@ BEGIN
 END;
 GO
 
+--HoraExtras
+--Listar
+CREATE PROCEDURE sp_listar_hora_extra
+    @fecha_inicio DATE = NULL,
+    @fecha_fin DATE = NULL,
+    @nombre NVARCHAR(255) = NULL,
+    @horas INT = NULL,
+    @tipo NVARCHAR(50) = NULL
+AS
+BEGIN
+    SELECT 
+        he.id_hora_extra AS id, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        he.horas, 
+        he.tipo, 
+        he.fecha
+    FROM 
+        HorasExtras he
+    INNER JOIN
+        Empleado e ON he.fk_id_empleado = e.id_empleado
+    WHERE
+        (@fecha_inicio IS NULL OR he.fecha >= @fecha_inicio) AND
+        (@fecha_fin IS NULL OR he.fecha <= @fecha_fin) AND
+        (@nombre IS NULL OR e.nombres + ' ' + e.apellidos LIKE '%' + @nombre + '%') AND
+        (@horas IS NULL OR he.horas = @horas) AND
+        (@tipo IS NULL OR he.tipo LIKE '%' + @tipo + '%')
+END;
+GO
+
+--Insertar
+CREATE PROCEDURE sp_insertar_horas_extras
+@horas INT,
+@tipo TEXT,
+@fecha DATE,
+@IdEmpleado INT
+AS
+BEGIN
+
+    INSERT INTO
+	    HorasExtras(horas, tipo, fecha, fk_id_empleado)
+	VALUES
+	    (@horas, @tipo, @fecha, @IdEmpleado);
+
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_horas_extras
+@id INT
+AS
+BEGIN
+
+    DELETE FROM HorasExtras
+	WHERE
+	    id_hora_extra = @id;
+
+END;
+GO
 
 -- INSERTAR DATOS
 --EMPRESA
