@@ -143,8 +143,10 @@ GO
 
 CREATE TABLE Anticipo(
     id_anticipo INT IDENTITY(1,1) PRIMARY KEY,
-    fecha DATE NOT NULL,
     monto DECIMAL(8,2) NOT NULL,
+    fecha_solicitud DATE NOT NULL,
+    monto_solicitado DECIMAL(8,2) NOT NULL,
+    estado NVARCHAR(10) CHECK( estado IN ('Pendiente', 'Aprobado', 'Rechazado')) NOT NULL,
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
@@ -989,6 +991,35 @@ BEGIN
 
 END;
 GO
+
+--Anticipo
+--listar
+CREATE PROCEDURE sp_listar_anticipo
+    @criterio NVARCHAR(255), 
+    @fecha DATE               
+AS
+BEGIN
+    SELECT 
+        a.id_anticipo AS id, 
+        a.monto, 
+        a.fecha_solicitud, 
+        a.monto_solicitado, 
+        a.estado, 
+        e.nombres + ' ' + e.apellidos AS Nombre
+    FROM 
+        Anticipo a
+    INNER JOIN 
+        Empleado e ON a.fk_id_empleado = e.id_empleado
+    WHERE 
+        (e.nombres LIKE '%' + @criterio + '%' OR
+         e.apellidos LIKE '%' + @criterio + '%' OR
+         a.monto LIKE '%' + @criterio + '%' OR
+         a.monto_solicitado LIKE '%' + @criterio + '%' OR
+         a.estado LIKE '%' + @criterio + '%')
+        AND (@fecha IS NULL OR a.fecha_solicitud = @fecha)
+END;
+GO
+
 
 -- INSERTAR DATOS
 --EMPRESA
