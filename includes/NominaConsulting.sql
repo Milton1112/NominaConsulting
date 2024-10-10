@@ -143,7 +143,6 @@ GO
 
 CREATE TABLE Anticipo(
     id_anticipo INT IDENTITY(1,1) PRIMARY KEY,
-    monto DECIMAL(8,2) NOT NULL,
     fecha_solicitud DATE NOT NULL,
     monto_solicitado DECIMAL(8,2) NOT NULL,
     estado NVARCHAR(10) CHECK( estado IN ('Pendiente', 'Aprobado', 'Rechazado')) NOT NULL,
@@ -1001,11 +1000,10 @@ AS
 BEGIN
     SELECT 
         a.id_anticipo AS id, 
-        a.monto, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
         a.fecha_solicitud, 
         a.monto_solicitado, 
-        a.estado, 
-        e.nombres + ' ' + e.apellidos AS Nombre
+        a.estado
     FROM 
         Anticipo a
     INNER JOIN 
@@ -1013,13 +1011,36 @@ BEGIN
     WHERE 
         (e.nombres LIKE '%' + @criterio + '%' OR
          e.apellidos LIKE '%' + @criterio + '%' OR
-         a.monto LIKE '%' + @criterio + '%' OR
          a.monto_solicitado LIKE '%' + @criterio + '%' OR
          a.estado LIKE '%' + @criterio + '%')
         AND (@fecha IS NULL OR a.fecha_solicitud = @fecha)
 END;
 GO
 
+--Insertar
+CREATE PROCEDURE sp_insertar_anticipo
+    @id INT,              
+    @fecha DATE,          
+    @estado NVARCHAR(50)  -- Estado del anticipo (Pendiente y Aprobado)
+AS
+BEGIN
+    -- Declaración de variables
+    DECLARE @salario_base DECIMAL(10, 2);
+    DECLARE @monto DECIMAL(10, 2);
+
+    -- Obtener el salario base del empleado
+    SELECT @salario_base = salario_base
+    FROM Salario
+    WHERE fk_id_empleado = @id;
+
+    -- Calcular el 30% del salario base
+    SET @monto = @salario_base * 0.30;
+
+    -- Insertar los valores en la tabla Anticipo
+    INSERT INTO Anticipo(fecha_solicitud, monto_solicitado, estado, fk_id_empleado)
+    VALUES(@fecha, @monto, @estado, @id);
+END;
+GO
 
 -- INSERTAR DATOS
 --EMPRESA

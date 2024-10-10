@@ -16,18 +16,16 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
 // Obtener la conexión
 $conn = getConnection();
 
-// Obtener las listas de Oficina, Profesión, Rol y Estado para los dropdowns
-$sqlOficina = "SELECT id_oficina, nombre FROM Oficina";
-$stmtOficina = sqlsrv_query($conn, $sqlOficina);
-
-
 // Verificar si se proporcionó el ID del empleado
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-
-    // Consulta para obtener los datos del empleado
-    $sql = "SELECT * FROM Empleado WHERE id_empleado = ?";
+    // Consulta para obtener los datos del empleado y su salario base
+    $sql = "
+        SELECT e.nombres, e.apellidos, e.dpi_pasaporte, s.salario_base 
+        FROM Empleado e
+        INNER JOIN Salario s ON e.id_empleado = s.fk_id_empleado
+        WHERE e.id_empleado = ?";
     $params = array($id);
     $stmt = sqlsrv_query($conn, $sql, $params);
 
@@ -38,19 +36,8 @@ if (isset($_GET['id'])) {
         // Almacenar los datos del empleado en variables
         $nombres = $row['nombres'];
         $apellidos = $row['apellidos'];
-        $tipo_contrato = $row['tipo_contrato'];
-        $fecha_contratacion = $row['fecha_contratacion'];
-        $puesto = $row['puesto'];
         $dpi_pasaporte = $row['dpi_pasaporte'];
-        $carnet_igss = $row['carnet_igss'];
-        $carnet_irtra = $row['carnet_irtra'];
-        $fecha_nacimiento = $row['fecha_nacimiento'];
-        $correo_electronico = $row['correo_electronico'];
-        $numero_telefono = $row['numero_telefono'];
-        $fk_id_oficina = $row['fk_id_oficina'];
-        $fk_id_profesion = $row['fk_id_profesion'];
-        $fk_id_rol = $row['fk_id_rol'];
-        $fk_id_estado = $row['fk_id_estado'];
+        $salario_base = $row['salario_base'];
     } else {
         echo "No se encontró el empleado.";
         exit;
@@ -103,48 +90,33 @@ if (isset($_GET['id'])) {
                     </div>
                 </div>
 
-                <!-- DPI -->
+                <!-- DPI/Pasaporte y Salario Base -->
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="dpi_pasaporte" class="form-label">DPI/Pasaporte</label>
                         <input type="text" class="form-control" name="dpi_pasaporte" value="<?php echo $dpi_pasaporte; ?>" readonly>
                     </div>
                     <div class="col-md-6">
-                        <label for="fk_id_oficina" class="form-label">Oficina</label>
-                        <input type="text" class="form-control" id="fk_id_oficina" name="fk_id_oficina" 
-                        value="<?php
-                        // Obtener el nombre de la oficina seleccionada
-                        while ($rowOficina = sqlsrv_fetch_array($stmtOficina, SQLSRV_FETCH_ASSOC)) {
-                            if ($fk_id_oficina == $rowOficina['id_oficina']) {
-                                echo $rowOficina['nombre']; // Mostrar el nombre de la oficina seleccionada
-                                }
-                            }
-                            ?>" readonly>
+                        <label for="salario_base" class="form-label">Salario Base</label>
+                        <input type="text" class="form-control" id="salario_base" name="salario_base" value="<?php echo $salario_base; ?>" readonly>
                     </div>
                 </div>
 
                 <!-- Línea separadora -->
                 <hr>
 
-                <!-- Campos adicionales para las horas extras -->
+                <!-- Fecha de Solicitud -->
                 <div class="row mb-3">
-                    <!-- Horas -->
                     <div class="col-md-6">
-                        <label for="horas" class="form-label">Horas Extras</label>
-                        <input type="number" class="form-control" name="horas" id="horas" placeholder="Ingrese las horas extras" required>
+                        <label for="fecha_solicitud" class="form-label">Fecha de Solicitud</label>
+                        <input type="date" class="form-control" name="fecha_solicitud" id="fecha_solicitud" required>
                     </div>
-                    <!-- Tipo (Descripción) -->
                     <div class="col-md-6">
-                        <label for="tipo" class="form-label">Tipo (Descripción)</label>
-                        <input type="text" class="form-control" name="tipo" id="tipo" placeholder="Ingrese la descripción" required>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <!-- Fecha de la hora extra -->
-                    <div class="col-md-6">
-                        <label for="fecha_hora_extra" class="form-label">Fecha de la hora extra</label>
-                        <input type="date" class="form-control" name="fecha_hora_extra" id="fecha_hora_extra" required>
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" name="estado" id="estado" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Aprobado">Aprobado</option>
+                        </select>
                     </div>
                 </div>
 
@@ -159,7 +131,7 @@ if (isset($_GET['id'])) {
 // Establecer la fecha mínima en el campo de fecha para que no se puedan seleccionar fechas pasadas
 document.addEventListener('DOMContentLoaded', function() {
     var today = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
-    document.getElementById('fecha_hora_extra').setAttribute('min', today); // Establecer el valor mínimo
+    document.getElementById('fecha_solicitud').setAttribute('min', today); // Establecer el valor mínimo
 });
 </script>
 
@@ -169,37 +141,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php
 
-function agregarHoraExtra($conn){
+function agregarAnticipo($conn){
     if ($_SERVER["REQUEST_METHOD"] == "POST"){
-        $hora = $_POST["horas"];
-        $tipo = $_POST["tipo"];
-        $fecha = $_POST["fecha_hora_extra"];
-        $id = $_POST["id"];
+        // Definir los parámetros para el SP
+        $id = $_POST['id'];  // ID del empleado
+        $fecha = $_POST['fecha_solicitud'];  // Fecha de la solicitud
+        $estado = $_POST['estado'];  // Estado del anticipo (Pendiente, Aprobado, Rechazado)
 
-         // Crear parámetros para el procedimiento almacenado
-         $sp_params = array(
-            array($hora, SQLSRV_PARAM_IN),
-            array($tipo, SQLSRV_PARAM_IN),
+        // Preparar la consulta del procedimiento almacenado
+        $sql = "{CALL sp_insertar_anticipo(?, ?, ?)}";
+        $params = array(
+            array($id, SQLSRV_PARAM_IN),
             array($fecha, SQLSRV_PARAM_IN),
-            array($id, SQLSRV_PARAM_IN)
-         );
+            array($estado, SQLSRV_PARAM_IN)
+        );
 
-         // Llamar al procedimiento almacenado
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_horas_extras(?,?,?,?)}", $sp_params);
+        // Ejecutar el procedimiento almacenado
+        $stmt = sqlsrv_query($conn, $sql, $params);
 
         // Verificar si la ejecución fue exitosa
-        if ($sp_stmt) {
-            echo '<script>alert("Al empleado se le agrego sus horas extras."); window.location.href = "../../hora_extra.php";</script>';
+        if ($stmt) {
+            echo '<script>alert("Al empleado se le agrego su Anticipo."); window.location.href = "../../anticipo.php";</script>';
         } else {
             echo "Error al ejecutar el procedimiento almacenado:<br>";
             die(print_r(sqlsrv_errors(), true));  // Mostrar errores de ejecución
         }
 
         // Liberar recursos
-        sqlsrv_free_stmt($sp_stmt);
+        sqlsrv_free_stmt($stmt);
+
     }
 }
 
-agregarHoraExtra($conn);
+agregarAnticipo($conn);
 
 ?>
