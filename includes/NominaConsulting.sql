@@ -1021,12 +1021,27 @@ GO
 CREATE PROCEDURE sp_insertar_anticipo
     @id INT,              
     @fecha DATE,          
-    @estado NVARCHAR(50)  -- Estado del anticipo (Pendiente y Aprobado)
+    @estado NVARCHAR(50)  
 AS
 BEGIN
     -- Declaración de variables
     DECLARE @salario_base DECIMAL(10, 2);
     DECLARE @monto DECIMAL(10, 2);
+    DECLARE @existe_anticipo INT;
+
+    -- Verificar si ya existe un anticipo en el mismo mes para el empleado
+    SELECT @existe_anticipo = COUNT(*)
+    FROM Anticipo
+    WHERE fk_id_empleado = @id
+      AND MONTH(fecha_solicitud) = MONTH(@fecha)
+      AND YEAR(fecha_solicitud) = YEAR(@fecha);
+
+    -- Si existe un anticipo, no permitir la inserción
+    IF @existe_anticipo > 0
+    BEGIN
+        RAISERROR('El empleado ya tiene un anticipo registrado en este mes.', 16, 1);
+        RETURN;
+    END
 
     -- Obtener el salario base del empleado
     SELECT @salario_base = salario_base
@@ -1041,6 +1056,118 @@ BEGIN
     VALUES(@fecha, @monto, @estado, @id);
 END;
 GO
+
+--actualizar
+CREATE PROCEDURE sp_actualizar_anticipo
+@id INT,
+@estado NVARCHAR(50)
+AS
+BEGIN
+    
+    UPDATE 
+        Anticipo
+    SET
+        estado = @estado
+    WHERE
+        id_anticipo = @id;
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_anticipo
+@id INT
+AS
+BEGIN
+
+    DELETE FROM Anticipo
+	WHERE
+	    id_anticipo = @id;
+
+END;
+GO
+
+--Ausencia
+--listar
+CREATE PROCEDURE sp_listar_ausencia
+    @criterio NVARCHAR(255), 
+    @fechaInicio DATE,       
+    @fechaFin DATE,          
+    @idEmpresa INT           
+AS
+BEGIN
+    SELECT
+        id_ausencia, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        a.fecha_inicio, 
+        a.fecha_fin, 
+        a.motivo
+    FROM 
+        Ausencia a
+    INNER JOIN 
+        Empleado e ON a.fk_id_empleado = e.id_empleado
+    WHERE
+        e.fk_id_empresa = @idEmpresa
+        AND (
+            (@fechaInicio IS NULL OR a.fecha_inicio >= @fechaInicio)
+            AND (@fechaFin IS NULL OR a.fecha_fin <= @fechaFin)
+        )
+        AND (
+            e.nombres LIKE '%' + @criterio + '%' 
+            OR e.apellidos LIKE '%' + @criterio + '%' 
+            OR a.motivo LIKE '%' + @criterio + '%' 
+        )
+END;
+GO
+
+--Insertar
+CREATE PROCEDURE sp_insertar_ausencia
+    @fechaInicio DATE,      
+    @fechaFin DATE,         
+    @motivo NVARCHAR(255),  
+    @IdEmpleado INT         
+AS
+BEGIN
+    -- Declaración de variables
+    DECLARE @numPermisos INT;
+
+    -- Contar la cantidad de permisos ("Permiso") solicitados en el mes para este empleado
+    SELECT @numPermisos = COUNT(*)
+    FROM Ausencia
+    WHERE fk_id_empleado = @IdEmpleado
+      AND CONVERT(VARCHAR(MAX), motivo) = 'Permiso'  -- Conversión de text a varchar
+      AND MONTH(fecha_inicio) = MONTH(@fechaInicio)
+      AND YEAR(fecha_inicio) = YEAR(@fechaInicio);
+
+    -- Verificar si ya tiene 3 permisos en el mismo mes
+    IF @numPermisos >= 3
+    BEGIN
+        RAISERROR('El empleado ha alcanzado el límite de 3 permisos en este mes según la política de la empresa.', 16, 1);
+        RETURN;
+    END
+
+    -- Insertar los valores en la tabla Ausencia si no se ha excedido el límite
+    INSERT INTO Ausencia(fecha_inicio, fecha_fin, motivo, fk_id_empleado)
+    VALUES (@fechaInicio, @fechaFin, @motivo, @IdEmpleado);
+
+    -- Verificar si la fecha actual es posterior a la fecha de fin
+    IF GETDATE() > @fechaFin
+    BEGIN
+        -- Cambiar el estado del empleado automáticamente
+        UPDATE Empleado
+        SET fk_id_estado = (
+            SELECT id_estado FROM Estado WHERE nombre = 'Activo'  -- Cambiar al estado que necesites
+        )
+        WHERE id_empleado = @IdEmpleado;
+    END
+
+    -- Seleccionar los estados "Activo", "Suspendido" y "Permiso" para verificar el estado actual
+    SELECT e.id_empleado, es.nombre 
+    FROM Empleado e 
+    INNER JOIN Estado es ON e.fk_id_estado = es.id_estado
+    WHERE e.id_empleado = @IdEmpleado;
+END;
+GO
+
 
 -- INSERTAR DATOS
 --EMPRESA
@@ -1102,7 +1229,7 @@ INSERT INTO Estado(nombre) VALUES
 ('Activo'),
 ('Suspendido'),
 ('Vacaciones'),
-('Incapacitado'),
+('Permiso'),
 ('Retirado'),
 ('Despedido');
 GO

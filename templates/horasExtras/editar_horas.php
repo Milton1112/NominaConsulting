@@ -150,12 +150,12 @@ function actualizarHoraExtra($conn){
         $id = $_POST["id"];
 
          // Crear parámetros para el procedimiento almacenado
-     $sp_params = array(
-        array($id, SQLSRV_PARAM_IN),
-        array($hora, SQLSRV_PARAM_IN),
-        array($tipo, SQLSRV_PARAM_IN),
-        array($fecha, SQLSRV_PARAM_IN)
-     );
+        $sp_params = array(
+            array($id, SQLSRV_PARAM_IN),
+            array($hora, SQLSRV_PARAM_IN),
+            array($tipo, SQLSRV_PARAM_IN),
+            array($fecha, SQLSRV_PARAM_IN)
+        );
 
      // Llamar al procedimiento almacenado
     $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_horas_extras(?,?,?,?)}", $sp_params);
