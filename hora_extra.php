@@ -218,7 +218,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['validarEmpleado'])) {
             if (data.existe) {
                 if (confirm("Empleado encontrado. ¿Desea agregar horas extras?")) {
                     // Redirigir a agregar_horas_extra.php con el id del empleado
-                    window.location.href = 'templates/horasExtras/agregar_horas_extra.php?id=${data.id_empleado}';
+                    window.location.href = 'templates/horasExtras/agregar_horas_extra.php?id=' + data.id_empleado;
+
                 }
             } else {
                 alert('Empleado no encontrado.');
