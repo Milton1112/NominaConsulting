@@ -1124,17 +1124,19 @@ CREATE PROCEDURE sp_insertar_ausencia
     @fechaInicio DATE,      
     @fechaFin DATE,         
     @motivo NVARCHAR(255),  
-    @IdEmpleado INT         
+    @IdEmpleado INT,
+    @estado NVARCHAR(50)
 AS
 BEGIN
     -- Declaración de variables
     DECLARE @numPermisos INT;
+    DECLARE @IdEstado INT;
 
     -- Contar la cantidad de permisos ("Permiso") solicitados en el mes para este empleado
     SELECT @numPermisos = COUNT(*)
     FROM Ausencia
     WHERE fk_id_empleado = @IdEmpleado
-      AND CONVERT(VARCHAR(MAX), motivo) = 'Permiso'  -- Conversión de text a varchar
+      AND CONVERT(VARCHAR(MAX), motivo) = 'Permiso'  
       AND MONTH(fecha_inicio) = MONTH(@fechaInicio)
       AND YEAR(fecha_inicio) = YEAR(@fechaInicio);
 
@@ -1149,22 +1151,28 @@ BEGIN
     INSERT INTO Ausencia(fecha_inicio, fecha_fin, motivo, fk_id_empleado)
     VALUES (@fechaInicio, @fechaFin, @motivo, @IdEmpleado);
 
-    -- Verificar si la fecha actual es posterior a la fecha de fin
-    IF GETDATE() > @fechaFin
+    -- Verificar si el estado proporcionado existe
+    SELECT @IdEstado = id_estado
+    FROM Estado
+    WHERE nombre = @estado;
+
+    -- Imprimir para depuración
+    PRINT 'ID de estado encontrado: ' + ISNULL(CAST(@IdEstado AS NVARCHAR(10)), 'NULL');
+
+    -- Si no existe el estado, lanzar un mensaje de advertencia
+    IF @IdEstado IS NULL
     BEGIN
-        -- Cambiar el estado del empleado automáticamente
-        UPDATE Empleado
-        SET fk_id_estado = (
-            SELECT id_estado FROM Estado WHERE nombre = 'Activo'  -- Cambiar al estado que necesites
-        )
-        WHERE id_empleado = @IdEmpleado;
+        PRINT 'No se encontró el estado con el nombre: ' + @estado;
+        RETURN;
     END
 
-    -- Seleccionar los estados "Activo", "Suspendido" y "Permiso" para verificar el estado actual
-    SELECT e.id_empleado, es.nombre 
-    FROM Empleado e 
-    INNER JOIN Estado es ON e.fk_id_estado = es.id_estado
-    WHERE e.id_empleado = @IdEmpleado;
+    -- Actualizar el estado del empleado
+    UPDATE Empleado
+    SET fk_id_estado = @IdEstado
+    WHERE id_empleado = @IdEmpleado;
+
+    -- Confirmar la actualización
+    PRINT 'Empleado actualizado con ID de estado: ' + CAST(@IdEstado AS NVARCHAR(10));
 END;
 GO
 
