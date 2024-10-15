@@ -183,6 +183,7 @@ CREATE TABLE Categoria(
 );
 GO
 
+
 CREATE TABLE Producto(
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(50) NOT NULL,
@@ -234,18 +235,6 @@ CREATE TABLE Liquidacion(
     fecha_fin_contrato DATE NOT NULL,
     fecha DATE NOT NULL,
     monto DECIMAL(8,2) NOT NULL,
-    fk_id_empleado INT NOT NULL,
-    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
-);
-GO
-
-CREATE TABLE Prestamos(
-    id_prestamo INT IDENTITY(1,1) PRIMARY KEY,
-    cuotas INT NOT NULL,
-    monto DECIMAL(8,2) NOT NULL,
-    saldo DECIMAL(8,2) NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
@@ -1175,6 +1164,20 @@ BEGIN
     PRINT 'Empleado actualizado con ID de estado: ' + CAST(@IdEstado AS NVARCHAR(10));
 END;
 GO
+
+--ELIMINAR
+CREATE PROCEDURE sp_eliminar_ausencia
+@id INT
+AS
+BEGIN
+
+    DELETE FROM Ausencia
+	WHERE 
+	    id_ausencia = @id;
+
+END;
+GO
+
 
 
 -- INSERTAR DATOS

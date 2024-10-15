@@ -42,7 +42,7 @@ $stmt = sqlsrv_query($conn, $sql, $params);
 
 // Verificar si la consulta fue exitosa
 if ($stmt === false) {
-    die(print_r(sqlsrv_errors(), true));
+    echo '<div class="alert alert-danger">Ocurrió un error al realizar la búsqueda de empleados.</div>';
 }
 ?>
 
@@ -84,12 +84,13 @@ if ($stmt === false) {
         <div class="mx-auto p-4 bg-white rounded">
             <form method="POST" action="">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, puesto, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>">
+                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre, apellido, puesto, etc." value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>" aria-label="Buscar empleado">
                     <button type="submit" class="btn btn-primary">Buscar</button>
                     <a href="templates/empleado/agregar_empleado.php" class="btn btn-outline-secondary">Agregar</a>
                 </div>
             </form>
             
+            <?php if (sqlsrv_has_rows($stmt)) : ?>
             <div class="table-responsive">
                 <table class="table table-hover table-borderless align-middle">
                     <thead class="bg-gradient bg-primary text-white rounded">
@@ -106,32 +107,34 @@ if ($stmt === false) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (sqlsrv_has_rows($stmt)) : ?>
-                            <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
-                                <tr class="shadow-sm rounded bg-light mb-2">
-                                    <td class="text-center fw-bold"><?php echo $row['id_empleado']; ?></td>
-                                    <td class="fw-bold text-primary"><?php echo $row['nombres'] . ', ' . $row['apellidos']; ?></td>
-                                    <td><?php echo $row['puesto']; ?></td>
-                                    <td><?php echo $row['dpi_pasaporte']; ?></td>
-                                    <td><?php echo $row['numero_telefono']; ?></td>
-                                    <td><?php echo $row['correo_electronico']; ?></td>
-                                    <td><?php echo $row['profesion']; ?></td>
-                                    <td><?php echo $row['departamento']; ?></td>
-                                    <td class="text-center">
-                                        <button class="btn btn-info btn-sm rounded-pill px-3 me-2" onclick="window.location.href='templates/empleado/editar_empleado.php?id=<?php echo $row['id_empleado']; ?>'">
-                                            <i class="fas fa-pencil-alt"></i> Editar
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        <?php else : ?>
-                            <tr>
-                                <td colspan="11" class="text-center text-muted py-3">No se encontraron empleados</td>
+                        <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
+                            <tr class="shadow-sm rounded bg-light mb-2">
+                                <td class="text-center fw-bold"><?php echo $row['id_empleado']; ?></td>
+                                <td class="fw-bold text-primary"><?php echo $row['nombres'] . ', ' . $row['apellidos']; ?></td>
+                                <td><?php echo $row['puesto']; ?></td>
+                                <td><?php echo $row['dpi_pasaporte']; ?></td>
+                                <td><?php echo $row['numero_telefono']; ?></td>
+                                <td><?php echo $row['correo_electronico']; ?></td>
+                                <td><?php echo $row['profesion']; ?></td>
+                                <td><?php echo $row['departamento']; ?></td>
+
+                                <td>
+                                    <div class="dropdown">
+                                        <a class="fas fa-ellipsis-v" href="#" role="button" id="dropdownMenuLink<?php echo $row['id_empleado']; ?>" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink<?php echo $row['id_empleado']; ?>">
+                                            <li><a class="dropdown-item" href="templates/empleado/view_informacion.php?id=<?php echo $row['id_empleado']; ?>">Ver empleado</a></li>
+                                            <li><a class="dropdown-item" href="templates/empleado/editar_empleado.php?id=<?php echo $row['id_empleado']; ?>">Editar</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endwhile; ?>
                     </tbody>
                 </table>
             </div>
+            <?php else : ?>
+                <div class="alert alert-warning text-center">No se encontraron empleados que coincidan con el criterio de búsqueda.</div>
+            <?php endif; ?>
         </div>
     </div>
 

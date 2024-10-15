@@ -73,12 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="expediente.php"><i class="fas fa-folder"></i> Expediente</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bono 14</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Aguinaldo</a>
+        <a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> Liquidación</a>
         <a class="dropdown-item" href="salario.php"><i class="fas fa-money-bill"></i> Salario</a>
         <a class="dropdown-item" href="anticipo.php"><i class="fas fa-hand-holding-usd"></i> Anticipo</a>
         <a class="dropdown-item" href="ausencia.php"><i class="fas fa-calendar-times"></i> Ausencia</a>
         <a class="dropdown-item" href="hora_extra.php"><i class="fas fa-clock"></i> Horas Extras</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> Liquidación</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-file-invoice-dollar"></i> Préstamos</a> <!-- Prestamos agregado -->
         <a class="dropdown-item" href="profesion.php"><i class="fas fa-user-graduate"></i> Profesiones</a>
         <a class="dropdown-item" href="departamento.php"><i class="fas fa-building"></i> Departamentos</a>
         <a class="dropdown-item" href="rol.php"><i class="fas fa-user-tag"></i> Roles</a>
@@ -120,8 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
 <li class="nav-item">
     <a class="nav-link" href="usuarios.php"><i class="fas fa-user"></i> Usuarios</a>
 </li>
-
-
 
                 </ul>
             </div>

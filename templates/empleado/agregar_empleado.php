@@ -137,11 +137,20 @@ $stmtEmpresa = sqlsrv_query($conn, $sqlEmpresa);
 
                     <!-- Tipo de Contrato y Puesto -->
                     <div class="row mb-3">
+                        
                         <div class="col-md-6">
                             <label for="tipoContrato" class="form-label">Tipo de Contrato</label>
-                            <input type="text" class="form-control" name="tipoContrato" placeholder="Ingrese tipo de contrato" required>
-                            <div class="invalid-feedback">Por favor, ingresa el tipo de contrato.</div>
+                            <select class="form-select" name="tipoContrato" required>
+                                <option value="" disabled selected>Seleccione el tipo de contrato</option>
+                                <option value="022">022</option>
+                                <option value="011">011</option>
+                                <option value="018">018</option>
+                                <option value="062">062</option>
+                                <option value="CUENTA PARA ADMIN">CUENTA PARA ADMIN</option>
+                            </select>
+                            <div class="invalid-feedback">Por favor, seleccione el tipo de contrato.</div>
                         </div>
+
 
                         <div class="col-md-6">
                             <label for="puesto" class="form-label">Puesto</label>

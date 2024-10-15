@@ -79,7 +79,7 @@ if (isset($_GET['id'])) {
 <body>
 <header class="bg-primary text-white py-3 shadow-sm">
     <div class="container d-flex justify-content-between align-items-center">
-        <a href="../../templates/empleado/empleados.php" class="btn btn-outline-light d-flex align-items-center">
+        <a href="../../empleados.php" class="btn btn-outline-light d-flex align-items-center">
             <i class="bi bi-arrow-left-circle me-2"></i> Regresar
         </a>
         <div class="text-center flex-grow-1">
@@ -112,10 +112,21 @@ if (isset($_GET['id'])) {
 
                 <!-- Tipo de Contrato y Puesto -->
                 <div class="row mb-3">
+
                     <div class="col-md-6">
                         <label for="tipo_contrato" class="form-label">Tipo de Contrato</label>
-                        <input type="text" class="form-control" name="tipo_contrato" value="<?php echo $tipo_contrato; ?>" required>
+                        <select class="form-select" name="tipo_contrato" required>
+                            <option value="" disabled <?php echo empty($tipo_contrato) ? 'selected' : ''; ?>>Seleccione el tipo de contrato</option>
+                            <option value="022" <?php echo ($tipo_contrato == '022') ? 'selected' : ''; ?>>022</option>
+                            <option value="011" <?php echo ($tipo_contrato == '011') ? 'selected' : ''; ?>>011</option>
+                            <option value="018" <?php echo ($tipo_contrato == '018') ? 'selected' : ''; ?>>018</option>
+                            <option value="062" <?php echo ($tipo_contrato == '062') ? 'selected' : ''; ?>>062</option>
+                            <option value="CUENTA PARA ADMIN" <?php echo ($tipo_contrato == 'CUENTA PARA ADMIN') ? 'selected' : ''; ?>>CUENTA PARA ADMIN</option>
+                        </select>
+                        <div class="invalid-feedback">Por favor, seleccione el tipo de contrato.</div>
                     </div>
+
+
                     <div class="col-md-6">
                         <label for="puesto" class="form-label">Puesto</label>
                         <input type="text" class="form-control" name="puesto" value="<?php echo $puesto; ?>" required>
