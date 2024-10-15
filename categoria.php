@@ -27,11 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['Buscar'])) {
     $criterio = $_POST['Buscar'];
 }
 
-// Procedimiento almacenado para listar empleados con filtro y fk_id_empresa
-$sql = "{CALL sp_listar_marca(?)}";
+// Procedimiento almacenado para listar categorías con filtro
+$sql = "{CALL sp_listar_categoria(?)}";
 $params = array(
     array($criterio, SQLSRV_PARAM_IN),
-
 );
 
 // Ejecutar la consulta
@@ -79,7 +78,7 @@ if ($stmt === false) {
                 <i class="bi bi-arrow-left-circle me-2"></i> Regresar
             </a>
             <div class="text-center flex-grow-1">
-                <h1 class="fs-3 mb-0 fw-bold">Lista de Marca</h1>
+                <h1 class="fs-3 mb-0 fw-bold">Lista de Categorías</h1>
             </div>
         </div>
     </header>
@@ -90,8 +89,7 @@ if ($stmt === false) {
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" name="Buscar" placeholder="Buscar." value="<?php echo isset($_POST['Buscar']) ? $_POST['Buscar'] : ''; ?>">
                     <button type="submit" class="btn btn-primary">Buscar</button>
-                    <a type="button" href="templates/marca/agregar_marca.php" class="btn btn-outline-secondary">Agregar Marca</a>
-
+                    <a type="button" href="templates/categoria/agregar_categoria.php" class="btn btn-outline-secondary">Agregar Categoría</a>
                 </div>
             </form>
             
@@ -102,41 +100,38 @@ if ($stmt === false) {
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Acciones</th>
-
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (sqlsrv_has_rows($stmt)) : ?>
                             <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
                                 <tr>
-                                    <td><?php echo $row['id_marca']; ?></td>
+                                    <td><?php echo $row['id_categoria']; ?></td>
                                     <td><?php echo $row['nombre']; ?></td>
-                                    
                                     <td class="text-center">
                                         <div class="dropdown">
-                                            <button class="btn btn-info btn-sm rounded-pill px-3 dropdown-toggle" type="button" id="dropdownMenuButton<?php echo $row['id_marca']; ?>" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <button class="btn btn-info btn-sm rounded-pill px-3 dropdown-toggle" type="button" id="dropdownMenuButton<?php echo $row['id_categoria']; ?>" data-bs-toggle="dropdown" aria-expanded="false">
                                                 Opciones
                                             </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton<?php echo $row['id_marca']; ?>">
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton<?php echo $row['id_categoria']; ?>">
                                                 <li>
-                                                    <a class="dropdown-item" href="templates/marca/editar_marca.php?id=<?php echo $row['id_marca']; ?>">
+                                                    <a class="dropdown-item" href="templates/categoria/editar_categoria.php?id=<?php echo $row['id_categoria']; ?>">
                                                         <i class="fas fa-pencil-alt"></i> Editar
                                                     </a>
                                                 </li>
                                                 <li>
-                                                    <a class="dropdown-item text-danger" href="templates/marca/eliminar_marca.php?id=<?php echo $row['id_marca']; ?>" onclick="return confirm('¿Estás seguro de que deseas eliminar esto?');">
+                                                    <a class="dropdown-item text-danger" href="templates/categoria/eliminar_categoria.php?id=<?php echo $row['id_categoria']; ?>" onclick="return confirm('¿Estás seguro de que deseas eliminar esto?');">
                                                         <i class="fas fa-trash-alt"></i> Eliminar
                                                     </a>
                                                 </li>
                                             </ul>
                                         </div>
-                                    </td><
-
+                                    </td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else : ?>
                             <tr>
-                                <td colspan="2" class="text-center text-muted py-3">No se encontró ningúna marca</td>
+                                <td colspan="3" class="text-center text-muted py-3">No se encontró ninguna categoría</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

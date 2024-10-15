@@ -1238,6 +1238,66 @@ BEGIN
 END;
 GO
 
+--Categoria
+--Listar
+CREATE PROCEDURE sp_listar_categoria
+@criterio NVARCHAR(255)
+AS
+BEGIN
+	SELECT
+		id_categoria, nombre
+	FROM 
+		Categoria
+	WHERE
+	    nombre LIKE '%' + @criterio + '%';
+END;
+GO
+
+--Agregar
+CREATE PROCEDURE sp_insertar_categoria
+@nombre NVARCHAR(255)
+AS
+BEGIN
+
+    INSERT INTO 
+        Categoria(nombre)
+    VALUES
+        (@nombre);
+
+END;
+GO
+
+--Actualizar
+CREATE PROCEDURE sp_actualizar_categoria
+@id INT,
+@nombre NVARCHAR(255)
+AS
+BEGIN
+    
+    UPDATE
+	    Categoria
+	SET
+	    nombre = @nombre
+	WHERE
+	    id_categoria = @id
+
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_categoria
+@id INT
+AS
+BEGIN
+    
+    DELETE FROM 
+	    Categoria
+	WHERE
+	    id_categoria = @id
+
+END;
+GO
+
 
 -- INSERTAR DATOS
 --EMPRESA
