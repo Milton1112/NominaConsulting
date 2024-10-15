@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
         <a class="dropdown-item" href="#"><i class="fas fa-percentage"></i> Comisiones</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bonificaciones</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-tags"></i> Marcas</a>
+        <a class="dropdown-item" href="marca.php"><i class="fas fa-tags"></i> Marcas</a>
         <a class="dropdown-item" href="#"><i class="fas fa-th-list"></i> Categorías</a>
     </div>
 </li>

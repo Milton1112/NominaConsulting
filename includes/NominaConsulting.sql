@@ -1178,6 +1178,65 @@ BEGIN
 END;
 GO
 
+--Marca
+--Listar
+CREATE PROCEDURE sp_listar_marca
+@criterio NVARCHAR(255)
+AS
+BEGIN
+	SELECT
+		id_marca, nombre
+	FROM 
+		Marca
+	WHERE
+	    nombre LIKE '%' + @criterio + '%';
+END;
+GO
+
+--Agregar
+CREATE PROCEDURE sp_insertar_marca
+@nombre NVARCHAR(255)
+AS
+BEGIN
+
+    INSERT INTO 
+        Marca(nombre)
+    VALUES
+        (@nombre);
+
+END;
+GO
+
+--Actualizar
+CREATE PROCEDURE sp_actualizar_marca
+@id INT,
+@nombre NVARCHAR(255)
+AS
+BEGIN
+    
+    UPDATE
+	    Marca
+	SET
+	    nombre = @nombre
+	WHERE
+	    id_marca = @id
+
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_marca
+@id INT
+AS
+BEGIN
+    
+    DELETE FROM 
+	    Marca
+	WHERE
+	    id_marca = @id
+
+END;
+GO
 
 
 -- INSERTAR DATOS
