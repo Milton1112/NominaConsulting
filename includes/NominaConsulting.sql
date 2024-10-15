@@ -1298,6 +1298,147 @@ BEGIN
 END;
 GO
 
+--Bonificación
+
+
+--Bono14
+--Listar
+CREATE PROCEDURE sp_listar_bono14
+    @idEmpresa INT,
+    @criterio NVARCHAR(255),
+    @fecha_inicio DATE = NULL,  
+    @fecha_fin DATE = NULL      
+AS
+BEGIN
+    SELECT
+        b.id_bono, 
+        e.nombres + ' ' + e.apellidos AS Nombre, 
+        b.monto, 
+        b.fecha, 
+        em.nombre AS Empresa
+    FROM
+        Bono14 b
+    INNER JOIN 
+        Empleado e ON b.fk_id_empleado = e.id_empleado
+    INNER JOIN
+        Empresa em ON e.fk_id_empresa = em.id_empresa
+    WHERE
+        e.fk_id_empresa = @idEmpresa
+        AND (e.nombres LIKE '%' + @criterio + '%' 
+             OR e.apellidos LIKE '%' + @criterio + '%')
+        AND (b.fecha BETWEEN @fecha_inicio AND @fecha_fin 
+             OR @fecha_inicio IS NULL 
+             OR @fecha_fin IS NULL);
+END;
+GO
+
+--Crear
+CREATE PROCEDURE generar_bono14
+    @id_empresa INT, -- Empresa solicitada
+    @anio INT       -- Año para generar el bono
+AS
+BEGIN
+    -- Declarar la fecha del 15 de julio del año en curso
+    DECLARE @fecha_julio DATE = CAST(CAST(@anio AS VARCHAR(4)) + '-07-15' AS DATE);
+    
+    -- Insertar el Bono 14, asegurándose de que no se inserte más de un bono por año por empleado
+    INSERT INTO Bono14 (fk_id_empleado, fecha, monto)
+    SELECT 
+        e.id_empleado,
+        @fecha_julio AS fecha,
+        -- Calcular el bono correctamente utilizando la fórmula ajustada para contar 22 días laborales por mes y limitar a 264 días
+        CASE 
+            -- Si el empleado fue contratado antes del 15 de julio del año en curso
+            WHEN e.fecha_contratacion <= @fecha_julio 
+            THEN 
+                -- Calcular el bono considerando 22 días por mes y limitando a un máximo de 264 días
+                (s.salario_base / 365) * 
+                CASE 
+                    -- Obtener los días trabajados (22 días por mes desde la contratación hasta el 15 de julio)
+                    WHEN DATEDIFF(MONTH, e.fecha_contratacion, @fecha_julio) * 22 <= 264 
+                    THEN DATEDIFF(MONTH, e.fecha_contratacion, @fecha_julio) * 22
+                    ELSE 264
+                END
+            -- Si el empleado fue contratado después del 15 de julio del año anterior, calcular para el año siguiente
+            ELSE 
+                -- Calcular el bono proporcional para el año siguiente desde el 1 de enero hasta el 15 de julio
+                -- También limitando el cálculo a un máximo de 264 días trabajados
+                (s.salario_base / 365) * 
+                CASE 
+                    WHEN DATEDIFF(MONTH, CAST(CAST(@anio AS VARCHAR(4)) + '-01-01' AS DATE), @fecha_julio) * 22 <= 264
+                    THEN DATEDIFF(MONTH, CAST(CAST(@anio AS VARCHAR(4)) + '-01-01' AS DATE), @fecha_julio) * 22
+                    ELSE 264
+                END
+        END AS monto
+    FROM 
+        Empleado e
+    INNER JOIN 
+        Salario s ON e.id_empleado = s.fk_id_empleado
+    INNER JOIN 
+        Empresa em ON e.fk_id_empresa = em.id_empresa
+    WHERE 
+        e.fk_id_empresa = @id_empresa
+        -- Solo empleados contratados antes del 15 de julio del año en curso o que se calculen para los años siguientes
+        AND (e.fecha_contratacion <= @fecha_julio 
+             OR (YEAR(e.fecha_contratacion) < @anio AND e.fecha_contratacion > CAST(CAST(@anio - 1 AS VARCHAR(4)) + '-07-15' AS DATE)))
+        AND NOT EXISTS (
+            -- Asegurar que no haya un Bono 14 ya registrado para este empleado en el mismo año
+            SELECT 1 
+            FROM Bono14 b 
+            WHERE b.fk_id_empleado = e.id_empleado 
+            AND YEAR(b.fecha) = @anio
+        );
+END;
+GO
+
+--Planilla
+--Planilla view
+CREATE VIEW planilla_empleado AS
+SELECT 
+     e.id_empleado, 
+     e.nombres + ' ' + e.apellidos AS Nombre,
+     e.puesto + ' ' + o.nombre AS Cargo, 
+     o.nombre AS Dependencia,
+     s.salario_base, 
+     s.salario_base * 0.0483 AS Descuento_IGSS,  -- Mostrar el descuento IGSS
+     s.salario_base - (s.salario_base * 0.0483) AS Liquido
+FROM 
+    Empleado e
+INNER JOIN
+    Salario s ON s.fk_id_empleado = e.id_empleado
+INNER JOIN 
+    Oficina o ON e.fk_id_oficina = o.id_oficina;
+GO
+
+--Listar
+CREATE PROCEDURE sp_listar_planilla
+    @fecha_inicio DATE = NULL, -- Fecha de inicio del rango (opcional)
+    @fecha_fin DATE = NULL,    -- Fecha de fin del rango (opcional)
+    @nombre NVARCHAR(100) = NULL  -- Nombre del empleado (opcional)
+AS
+BEGIN
+    SELECT 
+        e.id_empleado, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        e.puesto + ' ' + o.nombre AS Cargo, 
+        o.nombre AS Dependencia,
+        s.salario_base, 
+        s.salario_base * 0.0483 AS Descuento_IGSS,
+        s.salario_base - (s.salario_base * 0.0483) AS Liquido
+    FROM 
+        Empleado e
+    INNER JOIN
+        Salario s ON s.fk_id_empleado = e.id_empleado
+    INNER JOIN 
+        Oficina o ON e.fk_id_oficina = o.id_oficina
+    WHERE 
+        -- Filtrar por rango de fechas
+        (e.fecha_contratacion BETWEEN @fecha_inicio AND @fecha_fin OR @fecha_inicio IS NULL OR @fecha_fin IS NULL)
+        -- Filtrar por nombre
+        AND (e.nombres + ' ' + e.apellidos LIKE '%' + @nombre + '%' OR @nombre IS NULL);
+END;
+GO
+
 
 -- INSERTAR DATOS
 --EMPRESA

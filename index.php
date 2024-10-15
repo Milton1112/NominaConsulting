@@ -71,9 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
     <div class="dropdown-menu" aria-labelledby="navbarDropdownRRHH">
         <a class="dropdown-item" href="empleados.php"><i class="fas fa-users"></i> Empleados</a>
         <a class="dropdown-item" href="expediente.php"><i class="fas fa-folder"></i> Expediente</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bono 14</a>
+        <a class="dropdown-item" href="bono14.php"><i class="fas fa-gift"></i> Bono 14</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Aguinaldo</a>
         <a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> Liquidación</a>
+        <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bonificaciones</a>
         <a class="dropdown-item" href="salario.php"><i class="fas fa-money-bill"></i> Salario</a>
         <a class="dropdown-item" href="anticipo.php"><i class="fas fa-hand-holding-usd"></i> Anticipo</a>
         <a class="dropdown-item" href="ausencia.php"><i class="fas fa-calendar-times"></i> Ausencia</a>
@@ -94,7 +95,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="#"><i class="fas fa-box"></i> Productos</a>
         <a class="dropdown-item" href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
         <a class="dropdown-item" href="#"><i class="fas fa-percentage"></i> Comisiones</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bonificaciones</a>
         <a class="dropdown-item" href="marca.php"><i class="fas fa-tags"></i> Marcas</a>
         <a class="dropdown-item" href="categoria.php"><i class="fas fa-th-list"></i> Categorías</a>
     </div>
