@@ -19,9 +19,6 @@ function SignIn() {
             case 'Administrador':
                 header("Location: index.php");
                 break;
-            case 'Contador':
-                header("Location: auditoriaNomina.php");
-                break;
             default:
                 header("Location: index.php");
                 break;

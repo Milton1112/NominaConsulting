@@ -1804,6 +1804,34 @@ END;
 GO
 
 --Aguinaldo
+--Listar
+CREATE PROCEDURE sp_listar_aguinaldo
+    @fk_id_empresa INT,
+    @criterio NVARCHAR(255),
+    @fecha_inicio DATE = NULL,
+    @fecha_fin DATE = NULL
+AS
+BEGIN
+    SELECT 
+        a.id_aguinaldo,
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        a.monto,
+        a.fecha,
+        em.nombre AS Empresa
+    FROM 
+        Aguinaldo a
+    INNER JOIN 
+        Empleado e ON a.fk_id_empleado = e.id_empleado
+    INNER JOIN 
+        Empresa em ON e.fk_id_empresa = em.id_empresa
+    WHERE 
+        e.fk_id_empresa = @fk_id_empresa
+        AND (e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' OR @criterio IS NULL)
+        AND (a.fecha BETWEEN @fecha_inicio AND @fecha_fin OR @fecha_inicio IS NULL OR @fecha_fin IS NULL);
+END;
+GO
+
+--Crear
 CREATE PROCEDURE generar_aguinaldo
     @id_empresa INT, -- Empresa solicitada
     @anio INT       -- Año para generar el aguinaldo
@@ -1861,6 +1889,130 @@ BEGIN
         );
 END;
 GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_aguinaldo
+    @id_aguinaldo INT,        -- ID del aguinaldo específico
+    @eliminar_todos BIT = 0   -- Indica si se eliminan todos los aguinaldos del empleado (1 = Sí, 0 = No)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @eliminar_todos = 1
+    BEGIN
+        -- Eliminar todos los aguinaldos del empleado relacionado con @id_aguinaldo
+        DELETE FROM Aguinaldo
+        WHERE fk_id_empleado = (SELECT fk_id_empleado FROM Aguinaldo WHERE id_aguinaldo = @id_aguinaldo);
+
+        SELECT 'Todos los aguinaldos del empleado fueron eliminados.' AS Resultado;
+    END
+    ELSE
+    BEGIN
+        -- Eliminar solo el aguinaldo específico
+        DELETE FROM Aguinaldo
+        WHERE id_aguinaldo = @id_aguinaldo;
+
+        SELECT 'El aguinaldo específico fue eliminado.' AS Resultado;
+    END
+END;
+GO
+
+--Liquidacion
+--Crear
+CREATE PROCEDURE sp_crear_liquidacion
+    @dpi_pasaporte NVARCHAR(20),     -- DPI/Pasaporte del empleado
+    @fecha_fin_contrato DATE,        -- Fecha fin del contrato
+    @fecha DATE = NULL               -- Fecha de liquidación (predeterminada a hoy si es NULL)
+AS
+BEGIN
+    -- Establecer la fecha actual si @fecha es NULL
+    SET @fecha = ISNULL(@fecha, GETDATE());
+
+    DECLARE @id_empleado INT;
+    DECLARE @monto_liquidacion DECIMAL(10,2);
+
+    -- Obtener ID del empleado basado en DPI/Pasaporte
+    SELECT @id_empleado = id_empleado
+    FROM Empleado
+    WHERE dpi_pasaporte = @dpi_pasaporte;
+
+    IF @id_empleado IS NULL
+    BEGIN
+        RAISERROR('Empleado no encontrado.', 16, 1);
+        RETURN;
+    END;
+
+    -- Calcular el monto de liquidación usando el procedimiento sp_calcular_liquidacion
+    DECLARE @liquidacion_total TABLE (id_empleado INT, Liquidacion_Total DECIMAL(10, 2));
+
+    INSERT INTO @liquidacion_total
+    EXEC sp_calcular_liquidacion @dpi_pasaporte;
+
+    -- Obtener el monto calculado
+    SELECT @monto_liquidacion = Liquidacion_Total 
+    FROM @liquidacion_total 
+    WHERE id_empleado = @id_empleado;
+
+    -- Insertar en la tabla Liquidacion
+    INSERT INTO Liquidacion (fecha_fin_contrato, fecha, monto, fk_id_empleado)
+    VALUES (@fecha_fin_contrato, @fecha, @monto_liquidacion, @id_empleado);
+
+    -- Actualizar el estado del empleado a ID 5 (liquidado)
+    UPDATE Empleado
+    SET fk_id_estado = 5
+    WHERE id_empleado = @id_empleado;
+END;
+GO
+
+--Listar
+CREATE PROCEDURE sp_listar_liquidacion
+    @criterio NVARCHAR(255) = NULL  -- Criterio de búsqueda general (opcional)
+AS
+BEGIN
+    SELECT 
+        l.id_liquidacion,
+        e.id_empleado,
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        e.puesto AS Puesto,
+        l.fecha_fin_contrato,
+        l.fecha AS Fecha_Liquidacion,
+        l.monto AS Monto_Liquidacion
+    FROM 
+        Liquidacion l
+    INNER JOIN 
+        Empleado e ON l.fk_id_empleado = e.id_empleado
+    WHERE
+        @criterio IS NULL OR
+        (e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
+         OR e.puesto LIKE '%' + @criterio + '%')
+    ORDER BY 
+        l.fecha DESC;
+END;
+GO
+
+--Eliminar
+CREATE PROCEDURE sp_eliminar_liquidacion
+    @id INT,              -- ID de la liquidación
+    @idEmpleado INT       -- ID del empleado
+AS
+BEGIN
+    -- Verificar que el empleado existe
+    IF NOT EXISTS (SELECT 1 FROM Empleado WHERE id_empleado = @idEmpleado)
+    BEGIN
+        RAISERROR('Empleado no encontrado.', 16, 1);
+        RETURN;
+    END
+
+    -- Eliminar el registro de liquidación
+    DELETE FROM Liquidacion
+    WHERE id_liquidacion = @id AND fk_id_empleado = @idEmpleado;
+
+    -- Actualizar el estado del empleado a ID 1 (activo)
+    UPDATE Empleado
+    SET fk_id_estado = 1
+    WHERE id_empleado = @idEmpleado;
+END;
+
 
 
 -- INSERTAR DATOS
