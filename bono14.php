@@ -1,31 +1,25 @@
 <?php
-
 include_once 'includes/db_connect.php';
 include_once 'includes/functions.php';
 
 $conn = getConnection(); // Obtener la conexión a la base de datos
 
-// Verificar si la conexión es válida
 if (!$conn) {
     die("Error al conectar a la base de datos.");
 }
 
-// Verificar si la sesión ya está activa antes de llamar a session_start()
 if (session_status() == PHP_SESSION_NONE) {
-    session_start(); // Inicia la sesión si no está ya activa
+    session_start();
 }
 
-// Verificar si la sesión está activa
 if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== true) {
-    SignIn2(); // Redirige al login si no está logueado
+    SignIn2();
 }
 
-// Inicializar variables de búsqueda
 $criterio = "";
 $fecha_inicio = NULL;
 $fecha_fin = NULL;
 
-// Verificar si el usuario ha enviado una búsqueda
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['buscarEmpleado'])) {
         $criterio = $_POST['buscarEmpleado'];
@@ -38,27 +32,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Obtener el fk_id_empresa desde la sesión
 $fk_id_empresa = $_SESSION['fk_id_empresa'];
 
-// Procedimiento almacenado para listar bonos 14 con filtro, fechas y fk_id_empresa
-$sql = "{CALL sp_listar_bono14(?, ?, ?, ?)}"; // Ajustar según el SP
+$sql = "{CALL sp_listar_bono14(?, ?, ?, ?)}";
 $params = array(
-    array($fk_id_empresa, SQLSRV_PARAM_IN), // Pasar fk_id_empresa como parámetro
-    array($criterio, SQLSRV_PARAM_IN),      // Criterio de búsqueda
-    array($fecha_inicio, SQLSRV_PARAM_IN),  // Fecha inicio
-    array($fecha_fin, SQLSRV_PARAM_IN)      // Fecha fin
+    array($fk_id_empresa, SQLSRV_PARAM_IN),
+    array($criterio, SQLSRV_PARAM_IN),
+    array($fecha_inicio, SQLSRV_PARAM_IN),
+    array($fecha_fin, SQLSRV_PARAM_IN)
 );
 
-// Ejecutar la consulta
 $stmt = sqlsrv_query($conn, $sql, $params);
 
-// Verificar si la consulta fue exitosa
 if ($stmt === false) {
     echo '<div class="alert alert-danger">Ocurrió un error al realizar la búsqueda de bonos.</div>';
 }
 
-
+$bono_data = [];
+if (sqlsrv_has_rows($stmt)) {
+    while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+        $year = $row['fecha']->format('Y');
+        $month = $row['fecha']->format('n');
+        $bono_data[$year][$month][] = $row;
+    }
+}
 ?>
 
 <!doctype html>
@@ -69,7 +66,6 @@ if ($stmt === false) {
     <title>Nomina-Consulting</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../../assets/css/global.css">
     <style>
         body {
             background-color: #F4F7FC;
@@ -97,52 +93,78 @@ if ($stmt === false) {
 
     <div class="container-fluid mt-5 mb-5">
         <div class="mx-auto p-4 bg-white rounded">
-            
-        <form method="POST" action="">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre o apellido" value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>" aria-label="Buscar bono">
-        <input type="date" class="form-control" name="fecha_inicio" value="<?php echo isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : ''; ?>" placeholder="Fecha de inicio">
-        <input type="date" class="form-control" name="fecha_fin" value="<?php echo isset($_POST['fecha_fin']) ? $_POST['fecha_fin'] : ''; ?>" placeholder="Fecha de fin">
-        <button type="submit" class="btn btn-primary">Buscar</button>
-    </div>
-</form>
-    
-            <?php if (sqlsrv_has_rows($stmt)) : ?>
-            <div class="table-responsive">
-                <table class="table table-hover table-borderless align-middle">
-                    <thead class="bg-gradient bg-primary text-white rounded">
-                        <tr class="text-center">
-                            <th>#</th>
-                            <th>Nombre Empleado</th>
-                            <th>Monto</th>
-                            <th>Fecha</th>
-                            <th>Empresa</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) : ?>
-                            <tr class="shadow-sm rounded bg-light mb-2">
-                                <td class="text-center fw-bold"><?php echo $row['id_bono']; ?></td>
-                                <td class="fw-bold text-primary"><?php echo $row['Nombre']; ?></td>
-                                <td><?php echo $row['monto']; ?></td>
-                                <td><?php echo $row['fecha'] instanceof DateTime ? $row['fecha']->format('Y-m-d') : ''; ?></td>
-                                <td><?php echo $row['Empresa']; ?></td>
+            <form method="POST" action="">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="buscarEmpleado" placeholder="Buscar por nombre o apellido" value="<?php echo isset($_POST['buscarEmpleado']) ? $_POST['buscarEmpleado'] : ''; ?>" aria-label="Buscar bono">
+                    <input type="date" class="form-control" name="fecha_inicio" value="<?php echo isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : ''; ?>" placeholder="Fecha de inicio">
+                    <input type="date" class="form-control" name="fecha_fin" value="<?php echo isset($_POST['fecha_fin']) ? $_POST['fecha_fin'] : ''; ?>" placeholder="Fecha de fin">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                    <a href="templates/bono14/agregar_bono14.php" class="btn btn-outline-secondary ms-2">Agregar</a>
+                </div>
+            </form>
 
-                                <td>
-                                    <div class="dropdown">
-                                        <a class="fas fa-ellipsis-v" href="#" role="button" id="dropdownMenuLink<?php echo $row['id_bono']; ?>" data-bs-toggle="dropdown" aria-expanded="false"></a>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink<?php echo $row['id_bono']; ?>">
-                                            <li><a class="dropdown-item" href="eliminar_bono14.php?id=<?php echo $row['id_bono']; ?>">Eliminar Bono 14</a></li>
-                                            <li><a class="dropdown-item" href="descargar_bono_pdf.php?id=<?php echo $row['id_bono']; ?>">Descargar PDF</a></li>
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
+            <?php if (!empty($bono_data)) : ?>
+                <?php foreach ($bono_data as $year => $months) : ?>
+                    <div class="accordion mb-3" id="accordionYear<?php echo $year; ?>">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading<?php echo $year; ?>">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?php echo $year; ?>" aria-expanded="true" aria-controls="collapse<?php echo $year; ?>">
+                                    Año <?php echo $year; ?>
+                                </button>
+                            </h2>
+                            <div id="collapse<?php echo $year; ?>" class="accordion-collapse collapse show" aria-labelledby="heading<?php echo $year; ?>">
+                                <div class="accordion-body">
+                                    <?php foreach ($months as $month => $rows) : ?>
+                                        <div class="accordion mb-3" id="accordionMonth<?php echo $year . $month; ?>">
+                                            <div class="accordion-item">
+                                                <h2 class="accordion-header" id="headingMonth<?php echo $year . $month; ?>">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMonth<?php echo $year . $month; ?>" aria-expanded="false" aria-controls="collapseMonth<?php echo $year . $month; ?>">
+                                                        <?php echo date("F", mktime(0, 0, 0, $month, 1)); ?>
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseMonth<?php echo $year . $month; ?>" class="accordion-collapse collapse" aria-labelledby="headingMonth<?php echo $year . $month; ?>">
+                                                    <div class="accordion-body">
+                                                        <table class="table table-hover table-borderless align-middle">
+                                                            <thead class="bg-gradient bg-primary text-white rounded">
+                                                                <tr class="text-center">
+                                                                    <th>#</th>
+                                                                    <th>Nombre Empleado</th>
+                                                                    <th>Monto</th>
+                                                                    <th>Fecha</th>
+                                                                    <th>Empresa</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <?php foreach ($rows as $row) : ?>
+                                                                    <tr class="shadow-sm rounded bg-light mb-2">
+                                                                        <td class="text-center fw-bold"><?php echo $row['id_bono']; ?></td>
+                                                                        <td class="fw-bold text-primary"><?php echo $row['Nombre']; ?></td>
+                                                                        <td><?php echo $row['monto']; ?></td>
+                                                                        <td><?php echo $row['fecha'] instanceof DateTime ? $row['fecha']->format('Y-m-d') : ''; ?></td>
+                                                                        <td><?php echo $row['Empresa']; ?></td>
+                                                                        <td>
+                                                                            <div class="dropdown">
+                                                                                <a class="fas fa-ellipsis-v text-dark" href="#" role="button" id="dropdownMenuLink<?php echo $row['id_bono']; ?>" data-bs-toggle="dropdown" aria-expanded="false"></a>
+                                                                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink<?php echo $row['id_bono']; ?>">
+                                                                                    <li><a class="dropdown-item" href="templates/bono14/eliminar_bono14.php?id=<?php echo $row['id_bono']; ?>">Eliminar Bono 14</a></li>
+                                                                                </ul>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
             <?php else : ?>
                 <div class="alert alert-warning text-center">No se encontraron bonos que coincidan con el criterio de búsqueda.</div>
             <?php endif; ?>
@@ -153,6 +175,8 @@ if ($stmt === false) {
 </body>
 
 <?php
-sqlsrv_free_stmt($stmt);
+if ($stmt) {
+    sqlsrv_free_stmt($stmt);
+}
 sqlsrv_close($conn);
 ?>

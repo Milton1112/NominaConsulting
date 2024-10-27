@@ -35,6 +35,7 @@ function insertarProducto($conn) {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $nombre = $_POST["nombre"];
         $cantidad = $_POST["cantidad"];
+        $precio = $_POST["precio"];
         $estado = $_POST["estado"];
         $descripcion = $_POST["descripcion"];
         $idMarca = $_POST["idMarca"];
@@ -44,6 +45,7 @@ function insertarProducto($conn) {
         $sp_params = array(
             array($nombre, SQLSRV_PARAM_IN),
             array($cantidad, SQLSRV_PARAM_IN),
+            array($precio, SQLSRV_PARAM_IN),
             array($estado, SQLSRV_PARAM_IN),
             array($descripcion, SQLSRV_PARAM_IN),
             array($idMarca, SQLSRV_PARAM_IN),
@@ -51,7 +53,7 @@ function insertarProducto($conn) {
             array($idEmpresa, SQLSRV_PARAM_IN)
         );
 
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_producto(?, ?, ?, ?, ?, ?, ?)}", $sp_params);
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_insertar_producto(?, ?, ?, ?, ?, ?, ?, ?)}", $sp_params);
 
         if ($sp_stmt) {
             echo '<script>alert("Producto creado exitosamente."); window.location.href = "../../producto.php";</script>';
@@ -119,6 +121,12 @@ insertarProducto($conn);
                         <label for="cantidad" class="form-label">Cantidad</label>
                         <input type="number" class="form-control" name="cantidad" placeholder="Cantidad" required>
                         <div class="invalid-feedback">Por favor, ingresa la cantidad.</div>
+                    </div>
+
+                    <div>
+                        <label for="cantidad" class="form-label">Precio</label>
+                        <input type="number" class="form-control" name="precio" placeholder="precio" required>
+                        <div class="invalid-feedback">Por favor, ingresa el precio.</div>
                     </div>
 
                     <div>

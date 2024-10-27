@@ -37,6 +37,7 @@ if (isset($_GET['id'])) {
         // Almacenar los datos del producto en variables
         $nombre = $row['nombre'];
         $cantidad = $row['cantidad'];
+        $precio = $row['precio'];
         $estado = $row['estado'];
         $descripcion = $row['descripcion'];
         $idMarca = $row['fk_id_marca'];
@@ -61,6 +62,7 @@ function actualizarProducto($conn, $idEmpresa) {
         $idProducto = $_POST["id"];
         $nombre = $_POST["nombre"];
         $cantidad = $_POST["cantidad"];
+        $precio = $_POST["precio"];
         $estado = $_POST["estado"];
         $descripcion = $_POST["descripcion"];
         $idMarca = $_POST["idMarca"];
@@ -70,6 +72,7 @@ function actualizarProducto($conn, $idEmpresa) {
             array($idProducto, SQLSRV_PARAM_IN),
             array($nombre, SQLSRV_PARAM_IN),
             array($cantidad, SQLSRV_PARAM_IN),
+            array($precio, SQLSRV_PARAM_IN),
             array($estado, SQLSRV_PARAM_IN),
             array($descripcion, SQLSRV_PARAM_IN),
             array($idMarca, SQLSRV_PARAM_IN),
@@ -77,7 +80,7 @@ function actualizarProducto($conn, $idEmpresa) {
             array($idEmpresa, SQLSRV_PARAM_IN)
         );
 
-        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_producto(?, ?, ?, ?, ?, ?, ?, ?)}", $sp_params);
+        $sp_stmt = sqlsrv_query($conn, "{CALL sp_actualizar_producto(?, ?, ?,?, ?, ?, ?, ?, ?)}", $sp_params);
 
         if ($sp_stmt) {
             echo '<script>alert("Producto actualizado exitosamente."); window.location.href = "../../producto.php";</script>';
@@ -125,6 +128,11 @@ actualizarProducto($conn, $idEmpresa);
                     <div>
                         <label for="cantidad" class="form-label">Cantidad</label>
                         <input type="number" class="form-control" name="cantidad" value="<?php echo $cantidad; ?>" required>
+                    </div>
+
+                    <div>
+                        <label for="precio" class="form-label">Precio</label>
+                        <input type="number" class="form-control" name="precio" value="<?php echo $precio; ?>" required>
                     </div>
 
                     <div>

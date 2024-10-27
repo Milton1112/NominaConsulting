@@ -104,6 +104,7 @@ if ($stmt === false) {
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Cantidad</th>
+                            <th>Precio</th>
                             <th>Estado</th>
                             <th>Descripción</th>
                             <th>Marca</th>
@@ -119,6 +120,7 @@ if ($stmt === false) {
                                     <td><?php echo $row['id_producto']; ?></td>
                                     <td><?php echo $row['nombre']; ?></td>
                                     <td><?php echo $row['cantidad']; ?></td>
+                                    <td><?php echo $row['precio']; ?></td>
                                     <td><?php echo $row['estado']; ?></td>
                                     <td><?php echo $row['descripcion']; ?></td>
                                     <td><?php echo $row['Marca']; ?></td>

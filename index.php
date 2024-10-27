@@ -74,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <a class="dropdown-item" href="bono14.php"><i class="fas fa-gift"></i> Bono 14</a>
         <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Aguinaldo</a>
         <a class="dropdown-item" href="#"><i class="fas fa-money-check-alt"></i> Liquidación</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-gift"></i> Bonificaciones</a>
         <a class="dropdown-item" href="salario.php"><i class="fas fa-money-bill"></i> Salario</a>
         <a class="dropdown-item" href="anticipo.php"><i class="fas fa-hand-holding-usd"></i> Anticipo</a>
         <a class="dropdown-item" href="ausencia.php"><i class="fas fa-calendar-times"></i> Ausencia</a>
@@ -86,6 +85,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
     </div>
 </li>
 
+                    <!-- Menú desplegable de Audioria -->
+                    <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownRRHH" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-user-tie"></i> Planilla
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdownRRHH">
+        <a class="dropdown-item" href="planilla_salario.php"><i class="fas fa-info-circle"></i> Planilla Salario</a>
+        <a class="dropdown-item" href="quincena1.php"><i class="fas fa-info-circle"></i> Quincena1</a>
+        <a class="dropdown-item" href="quincena2.php"><i class="fas fa-info-circle"></i> quincena2</a>
+        
+    </div>
+</li>
+
+
 <!-- Menú desplegable de Tienda -->
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTienda" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -93,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdownTienda">
         <a class="dropdown-item" href="producto.php"><i class="fas fa-box"></i> Productos</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
+        <a class="dropdown-item" href="ventas.php"><i class="fas fa-shopping-cart"></i> Ventas</a>
         <a class="dropdown-item" href="marca.php"><i class="fas fa-tags"></i> Marcas</a>
         <a class="dropdown-item" href="categoria.php"><i class="fas fa-th-list"></i> Categorías</a>
     </div>

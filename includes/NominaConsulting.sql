@@ -188,6 +188,7 @@ CREATE TABLE Producto(
     id_producto INT IDENTITY(1,1) PRIMARY KEY,
     nombre NVARCHAR(50) NOT NULL,
     cantidad INT NOT NULL,
+    precio DECIMAL(8,2) NOT NULL,
     estado TEXT NOT NULL,
     descripcion TEXT NOT NULL,
     fk_id_marca INT NOT NULL,
@@ -202,21 +203,17 @@ GO
 CREATE TABLE VentaTienda(
     id_venta_tienda INT IDENTITY(1,1) PRIMARY KEY,
     fecha DATE NOT NULL,
-    monto INT NOT NULL,
-    monto_compra DECIMAL(8,2) NOT NULL,
+    monto_total INT NOT NULL,
+    cantidad INT NOT NULL,
     fk_id_empleado INT NOT NULL,
+    fk_id_Producto INT NOT NULL,
+    fk_id_empresa INT NOT NULL,
+    FOREIGN KEY (fk_id_Producto) REFERENCES Producto(id_producto),
+    FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa),
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
 GO
 
-CREATE TABLE Bonificacion(
-    id_bonificacion INT IDENTITY(1,1) PRIMARY KEY,
-    monto DECIMAL(8,2) NOT NULL,
-    numero_pieza INT NOT NULL,
-    fk_id_empleado INT NOT NULL,
-    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
-);
-GO
 
 CREATE TABLE Liquidacion(
     id_liquidacion INT IDENTITY(1,1) PRIMARY KEY,
@@ -1385,8 +1382,35 @@ BEGIN
 END;
 GO
 
+--Eliminar Bono14:
+CREATE PROCEDURE sp_eliminar_bono14
+    @id_bono INT,               -- ID del bono específico
+    @eliminar_todos BIT = 0     -- Indica si se eliminan todos los bonos del empleado (1 = Sí, 0 = No)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @eliminar_todos = 1
+    BEGIN
+        -- Eliminar todos los bonos del empleado relacionado con @id_bono
+        DELETE FROM Bono14
+        WHERE fk_id_empleado = (SELECT fk_id_empleado FROM Bono14 WHERE id_bono = @id_bono);
+
+        SELECT 'Todos los bonos del empleado fueron eliminados.' AS Resultado;
+    END
+    ELSE
+    BEGIN
+        -- Eliminar solo el bono específico
+        DELETE FROM Bono14
+        WHERE id_bono = @id_bono;
+
+        SELECT 'El bono específico fue eliminado.' AS Resultado;
+    END
+END;
+GO
+
+
 --Planilla
---Planilla view
 CREATE VIEW planilla_empleado AS
 SELECT 
      e.id_empleado, 
@@ -1394,21 +1418,34 @@ SELECT
      e.puesto + ' ' + o.nombre AS Cargo, 
      o.nombre AS Dependencia,
      s.salario_base, 
-     s.salario_base * 0.0483 AS Descuento_IGSS,  -- Mostrar el descuento IGSS
-     s.salario_base - (s.salario_base * 0.0483) AS Liquido
+     CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
+     CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
+     CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido
 FROM 
     Empleado e
 INNER JOIN
     Salario s ON s.fk_id_empleado = e.id_empleado
 INNER JOIN 
-    Oficina o ON e.fk_id_oficina = o.id_oficina;
+    Oficina o ON e.fk_id_oficina = o.id_oficina
+LEFT JOIN 
+    (SELECT 
+         fk_id_empleado, 
+         SUM(horas) AS horas  
+     FROM 
+         HorasExtras
+     WHERE 
+         MONTH(fecha) = MONTH(GETDATE())  
+         AND YEAR(fecha) = YEAR(GETDATE())
+     GROUP BY 
+         fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado;
 GO
 
 --Listar
 CREATE PROCEDURE sp_listar_planilla
+    @criterio NVARCHAR(255),  -- Criterio de búsqueda general
+    @idEmpresa INT,           -- ID de la empresa
     @fecha_inicio DATE = NULL, -- Fecha de inicio del rango (opcional)
-    @fecha_fin DATE = NULL,    -- Fecha de fin del rango (opcional)
-    @nombre NVARCHAR(100) = NULL  -- Nombre del empleado (opcional)
+    @fecha_fin DATE = NULL     -- Fecha de fin del rango (opcional)
 AS
 BEGIN
     SELECT 
@@ -1417,81 +1454,191 @@ BEGIN
         e.puesto + ' ' + o.nombre AS Cargo, 
         o.nombre AS Dependencia,
         s.salario_base, 
-        s.salario_base * 0.0483 AS Descuento_IGSS,
-        s.salario_base - (s.salario_base * 0.0483) AS Liquido
+        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
+        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
+        CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido,
+        e.fecha_contratacion  -- Incluimos este campo para evitar errores en el PHP
     FROM 
         Empleado e
     INNER JOIN
         Salario s ON s.fk_id_empleado = e.id_empleado
     INNER JOIN 
         Oficina o ON e.fk_id_oficina = o.id_oficina
-    WHERE 
-        -- Filtrar por rango de fechas
-        (e.fecha_contratacion BETWEEN @fecha_inicio AND @fecha_fin OR @fecha_inicio IS NULL OR @fecha_fin IS NULL)
-        -- Filtrar por nombre
-        AND (e.nombres + ' ' + e.apellidos LIKE '%' + @nombre + '%' OR @nombre IS NULL);
+    LEFT JOIN 
+        (SELECT 
+             fk_id_empleado, 
+             SUM(horas) AS horas  
+         FROM 
+             HorasExtras
+         WHERE 
+             MONTH(fecha) = MONTH(GETDATE())  
+             AND YEAR(fecha) = YEAR(GETDATE())
+         GROUP BY 
+             fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
+    WHERE
+        e.fk_id_empresa = @idEmpresa
+        AND (e.fecha_contratacion BETWEEN @fecha_inicio AND @fecha_fin OR @fecha_inicio IS NULL OR @fecha_fin IS NULL)
+        AND (
+            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
+            OR o.nombre LIKE '%' + @criterio + '%'
+            OR e.puesto LIKE '%' + @criterio + '%'
+            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+        );
 END;
 GO
+
+--Quincena1
+CREATE PROCEDURE sp_quincena1
+    @criterio NVARCHAR(255),  -- Criterio de búsqueda general
+    @idEmpresa INT            -- ID de la empresa
+AS
+BEGIN
+    DECLARE @fecha_inicio DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1);
+    DECLARE @fecha_fin DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 15);
+
+    SELECT 
+        e.id_empleado, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        e.puesto + ' ' + o.nombre AS Cargo, 
+        o.nombre AS Dependencia,
+        s.salario_base, 
+        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
+        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
+        CAST(s.salario_base / 2 AS DECIMAL(8,2)) AS Salario_Quincena, -- Salario para la quincena
+        CAST((s.salario_base / 2) - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido_Quincenal,
+        e.fecha_contratacion
+    FROM 
+        Empleado e
+    INNER JOIN
+        Salario s ON s.fk_id_empleado = e.id_empleado
+    INNER JOIN 
+        Oficina o ON e.fk_id_oficina = o.id_oficina
+    LEFT JOIN 
+        (SELECT 
+             fk_id_empleado, 
+             SUM(horas) AS horas  
+         FROM 
+             HorasExtras
+         WHERE 
+             fecha BETWEEN @fecha_inicio AND @fecha_fin
+         GROUP BY 
+             fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
+    WHERE
+        e.fk_id_empresa = @idEmpresa
+        AND (
+            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
+            OR o.nombre LIKE '%' + @criterio + '%'
+            OR e.puesto LIKE '%' + @criterio + '%'
+            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+        );
+END;
+GO
+
+--Quincena2
+CREATE PROCEDURE sp_quincena2
+    @criterio NVARCHAR(255),  -- Criterio de búsqueda general
+    @idEmpresa INT            -- ID de la empresa
+AS
+BEGIN
+    DECLARE @fecha_inicio DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 16);
+    DECLARE @fecha_fin DATE = EOMONTH(GETDATE());  -- Último día del mes actual
+
+    SELECT 
+        e.id_empleado, 
+        e.nombres + ' ' + e.apellidos AS Nombre,
+        e.puesto + ' ' + o.nombre AS Cargo, 
+        o.nombre AS Dependencia,
+        s.salario_base, 
+        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
+        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
+        CAST(s.salario_base / 2 AS DECIMAL(8,2)) AS Salario_Quincena, -- Salario para la quincena
+        CAST((s.salario_base / 2) - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido_Quincenal,
+        e.fecha_contratacion
+    FROM 
+        Empleado e
+    INNER JOIN
+        Salario s ON s.fk_id_empleado = e.id_empleado
+    INNER JOIN 
+        Oficina o ON e.fk_id_oficina = o.id_oficina
+    LEFT JOIN 
+        (SELECT 
+             fk_id_empleado, 
+             SUM(horas) AS horas  
+         FROM 
+             HorasExtras
+         WHERE 
+             fecha BETWEEN @fecha_inicio AND @fecha_fin
+         GROUP BY 
+             fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
+    WHERE
+        e.fk_id_empresa = @idEmpresa
+        AND (
+            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
+            OR o.nombre LIKE '%' + @criterio + '%'
+            OR e.puesto LIKE '%' + @criterio + '%'
+            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+        );
+END;
+GO
+
 
 --Producto
---Listar
+--LISTAR
 CREATE PROCEDURE sp_listar_producto
-@criterio NVARCHAR(255),
-@idEmpresa INT
+    @criterio NVARCHAR(255),
+    @idEmpresa INT
 AS
 BEGIN
-
     SELECT
-	    p.id_producto, p.nombre, p.cantidad, p.estado, p.descripcion,
-		m.nombre AS Marca, c.nombre AS Categoria,
-		e.nombre AS Nombre
-	FROM
-	    Producto p
-	INNER JOIN
-	    Marca m ON p.fk_id_marca = m.id_marca
-	INNER JOIN
-	    Categoria c ON p.fk_id_categoria = c.id_categoria
-	INNER JOIN
-	    Empresa e ON p.fk_id_empresa = e.id_empresa
-	WHERE
-	    fk_id_empresa = @idEmpresa
-		AND (e.nombre LIKE '%' + @criterio + '%' 
-         OR p.nombre LIKE '%' + @criterio + '%'
-		 OR p.estado LIKE '%' + @criterio + '%'
-		 OR p.descripcion LIKE '%' + @criterio + '%'
-		 OR m.nombre LIKE '%' + @criterio + '%'
-		 OR c.nombre LIKE '%' + @criterio + '%');
-
+        p.id_producto, p.nombre, p.cantidad, p.precio, p.estado, p.descripcion,
+        m.nombre AS Marca, c.nombre AS Categoria,
+        e.nombre AS Nombre
+    FROM
+        Producto p
+    INNER JOIN
+        Marca m ON p.fk_id_marca = m.id_marca
+    INNER JOIN
+        Categoria c ON p.fk_id_categoria = c.id_categoria
+    INNER JOIN
+        Empresa e ON p.fk_id_empresa = e.id_empresa
+    WHERE
+        fk_id_empresa = @idEmpresa
+        AND (e.nombre LIKE '%' + @criterio + '%' 
+             OR p.nombre LIKE '%' + @criterio + '%'
+             OR p.estado LIKE '%' + @criterio + '%'
+             OR p.descripcion LIKE '%' + @criterio + '%'
+             OR m.nombre LIKE '%' + @criterio + '%'
+             OR c.nombre LIKE '%' + @criterio + '%');
 END;
 GO
 
---CREAR
+--Crear
 CREATE PROCEDURE sp_insertar_producto
-@nombre NVARCHAR(255),
-@cantidad INT,
-@estado NVARCHAR(255),
-@descripcion NVARCHAR(255),
-@idMarca INT,
-@idCategoria INT,
-@idEmpresa INT
+    @nombre NVARCHAR(255),
+    @cantidad INT,
+    @precio DECIMAL(8,2),
+    @estado NVARCHAR(255),
+    @descripcion NVARCHAR(255),
+    @idMarca INT,
+    @idCategoria INT,
+    @idEmpresa INT
 AS
 BEGIN
-
-     INSERT INTO
-	     Producto(nombre, cantidad, estado, descripcion, 
-		 fk_id_marca, fk_id_categoria, fk_id_empresa)
-	 VALUES
-	     (@nombre, @cantidad, @estado, @descripcion,
-		 @idMarca, @idCategoria, @idEmpresa)
-
+    INSERT INTO
+        Producto(nombre, cantidad, precio, estado, descripcion, 
+                 fk_id_marca, fk_id_categoria, fk_id_empresa)
+    VALUES
+        (@nombre, @cantidad, @precio, @estado, @descripcion,
+         @idMarca, @idCategoria, @idEmpresa);
 END;
 GO
 
---Update
+--actualizar
 CREATE PROCEDURE sp_actualizar_producto
     @idProducto INT,
     @nombre NVARCHAR(255),
     @cantidad INT,
+    @precio DECIMAL(8,2),
     @estado NVARCHAR(255),
     @descripcion NVARCHAR(255),
     @idMarca INT,
@@ -1502,6 +1649,7 @@ BEGIN
     UPDATE Producto
     SET nombre = @nombre,
         cantidad = @cantidad,
+        precio = @precio,
         estado = @estado,
         descripcion = @descripcion,
         fk_id_marca = @idMarca,
@@ -1511,7 +1659,208 @@ BEGIN
 END;
 GO
 
+--Venta
+--Listar
+CREATE PROCEDURE sp_listar_venta
+    @criterio NVARCHAR(255),
+    @idEmpresa INT,
+    @fechaInicio DATE = NULL,
+    @fechaFin DATE = NULL
+AS
+BEGIN
+    SELECT
+        vt.id_venta_tienda, 
+        p.nombre AS [Nombre Producto],
+        p.precio AS [Precio],
+        c.nombre AS [Categoria],
+        m.nombre AS [Marca],
+        vt.cantidad AS [Cantidad Vendida],
+        vt.fecha, 
+        vt.monto_total AS [Monto Total],
+        e.nombres + ' ' + e.apellidos AS [Empleado],
+        em.nombre AS [Empresa]
+    FROM
+        VentaTienda vt
+    INNER JOIN
+        Producto p ON vt.fk_id_Producto = p.id_producto 
+    INNER JOIN
+        Empresa em ON vt.fk_id_empresa = em.id_empresa
+    INNER JOIN
+        Empleado e ON vt.fk_id_empleado = e.id_empleado
+    INNER JOIN
+        Categoria c ON p.fk_id_categoria = c.id_categoria
+    INNER JOIN
+        Marca m ON p.fk_id_marca = m.id_marca
+    WHERE
+        em.id_empresa = @idEmpresa
+        AND (e.nombres LIKE '%' + @criterio + '%' 
+             OR p.nombre LIKE '%' + @criterio + '%'
+             OR CAST(p.precio AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+             OR c.nombre LIKE '%' + @criterio + '%'
+             OR m.nombre LIKE '%' + @criterio + '%'
+             OR CAST(vt.fecha AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+             OR em.nombre LIKE '%' + @criterio + '%')
+        AND (vt.fecha >= @fechaInicio OR @fechaInicio IS NULL)
+        AND (vt.fecha <= @fechaFin OR @fechaFin IS NULL);
+END;
+GO
+
+
 --Agregar Venta
+CREATE PROCEDURE sp_venta_tienda
+    @fecha DATE,
+    @cantidad INT,
+    @dpi_pasaporte NVARCHAR(20),
+    @id_producto INT,
+    @id_empresa INT
+AS
+BEGIN
+    -- Declaración de variables para almacenar los IDs, cantidad y precio
+    DECLARE @id_empleado INT;
+    DECLARE @cantidad_disponible INT;
+    DECLARE @precio DECIMAL(8,2);
+    DECLARE @monto_total DECIMAL(10,2);
+
+    -- Verificar si el empleado existe y pertenece a la empresa especificada, y obtener su ID
+    SELECT @id_empleado = id_empleado
+    FROM Empleado
+    WHERE dpi_pasaporte = @dpi_pasaporte AND fk_id_empresa = @id_empresa;
+
+    -- Si el empleado no existe o no pertenece a la empresa, mostrar mensaje y salir
+    IF @id_empleado IS NULL
+    BEGIN
+        PRINT 'El empleado no existe o no pertenece a la empresa especificada';
+        RETURN;
+    END
+
+    -- Verificar si el producto existe y pertenece a la empresa especificada, y obtener su cantidad disponible y precio
+    SELECT @cantidad_disponible = cantidad, @precio = precio
+    FROM Producto
+    WHERE id_producto = @id_producto AND fk_id_empresa = @id_empresa;
+
+    -- Si el producto no existe o no pertenece a la empresa, mostrar mensaje y salir
+    IF @cantidad_disponible IS NULL
+    BEGIN
+        PRINT 'El producto no existe o no pertenece a la empresa especificada';
+        RETURN;
+    END
+
+    -- Verificar que haya suficiente cantidad del producto disponible
+    IF @cantidad_disponible < @cantidad
+    BEGIN
+        PRINT 'No hay suficiente cantidad disponible del producto';
+        RETURN;
+    END
+
+    -- Calcular el monto total basado en la cantidad y el precio del producto
+    SET @monto_total = @cantidad * @precio;
+
+    -- Insertar la venta en la tabla VentaTienda
+    INSERT INTO VentaTienda (fecha, monto_total, cantidad, fk_id_empleado, fk_id_Producto, fk_id_empresa)
+    VALUES (@fecha, @monto_total, @cantidad, @id_empleado, @id_producto, @id_empresa);
+
+    -- Actualizar la cantidad disponible en la tabla Producto
+    UPDATE Producto
+    SET cantidad = cantidad - @cantidad
+    WHERE id_producto = @id_producto AND fk_id_empresa = @id_empresa;
+
+    PRINT 'Venta registrada exitosamente y cantidad actualizada';
+END;
+GO
+
+--Eliminar Venta
+CREATE PROCEDURE sp_eliminar_venta
+    @idVentaTienda INT,
+    @idEmpresa INT
+AS
+BEGIN
+    -- Declarar variables para almacenar la cantidad y el ID del producto
+    DECLARE @cantidad INT;
+    DECLARE @idProducto INT;
+
+    -- Obtener la cantidad vendida y el ID del producto de la venta
+    SELECT @cantidad = cantidad, @idProducto = fk_id_Producto
+    FROM VentaTienda
+    WHERE id_venta_tienda = @idVentaTienda AND fk_id_empresa = @idEmpresa;
+
+    -- Verificar si la venta existe
+    IF @cantidad IS NULL OR @idProducto IS NULL
+    BEGIN
+        PRINT 'La venta especificada no existe o no pertenece a la empresa indicada';
+        RETURN;
+    END
+
+    -- Actualizar la cantidad del producto, sumando la cantidad de la venta
+    UPDATE Producto
+    SET cantidad = cantidad + @cantidad
+    WHERE id_producto = @idProducto AND fk_id_empresa = @idEmpresa;
+
+    -- Eliminar la venta de la tabla VentaTienda
+    DELETE FROM VentaTienda
+    WHERE id_venta_tienda = @idVentaTienda AND fk_id_empresa = @idEmpresa;
+
+    PRINT 'Venta eliminada exitosamente y cantidad del producto actualizada';
+END;
+GO
+
+--Aguinaldo
+CREATE PROCEDURE generar_aguinaldo
+    @id_empresa INT, -- Empresa solicitada
+    @anio INT       -- Año para generar el aguinaldo
+AS
+BEGIN
+    -- Declarar la fecha del 20 de diciembre del año en curso
+    DECLARE @fecha_diciembre DATE = CAST(CAST(@anio AS VARCHAR(4)) + '-12-20' AS DATE);
+    
+    -- Insertar el aguinaldo, asegurándose de que no se inserte más de un aguinaldo por año por empleado
+    INSERT INTO Aguinaldo (fk_id_empleado, fecha, monto)
+    SELECT 
+        e.id_empleado,
+        @fecha_diciembre AS fecha,
+        -- Calcular el aguinaldo correctamente utilizando la fórmula ajustada para contar 22 días laborales por mes y limitar a 264 días
+        CASE 
+            -- Si el empleado fue contratado antes del 20 de diciembre del año en curso
+            WHEN e.fecha_contratacion <= @fecha_diciembre 
+            THEN 
+                -- Calcular el aguinaldo considerando 22 días por mes y limitando a un máximo de 264 días
+                (s.salario_base / 365) * 
+                CASE 
+                    -- Obtener los días trabajados (22 días por mes desde la contratación hasta el 20 de diciembre)
+                    WHEN DATEDIFF(MONTH, e.fecha_contratacion, @fecha_diciembre) * 22 <= 264 
+                    THEN DATEDIFF(MONTH, e.fecha_contratacion, @fecha_diciembre) * 22
+                    ELSE 264
+                END
+            -- Si el empleado fue contratado después del 20 de diciembre del año anterior, calcular para el año siguiente
+            ELSE 
+                -- Calcular el aguinaldo proporcional para el año siguiente desde el 1 de enero hasta el 20 de diciembre
+                -- También limitando el cálculo a un máximo de 264 días trabajados
+                (s.salario_base / 365) * 
+                CASE 
+                    WHEN DATEDIFF(MONTH, CAST(CAST(@anio AS VARCHAR(4)) + '-01-01' AS DATE), @fecha_diciembre) * 22 <= 264
+                    THEN DATEDIFF(MONTH, CAST(CAST(@anio AS VARCHAR(4)) + '-01-01' AS DATE), @fecha_diciembre) * 22
+                    ELSE 264
+                END
+        END AS monto
+    FROM 
+        Empleado e
+    INNER JOIN 
+        Salario s ON e.id_empleado = s.fk_id_empleado
+    INNER JOIN 
+        Empresa em ON e.fk_id_empresa = em.id_empresa
+    WHERE 
+        e.fk_id_empresa = @id_empresa
+        -- Solo empleados contratados antes del 20 de diciembre del año en curso o que se calculen para los años siguientes
+        AND (e.fecha_contratacion <= @fecha_diciembre 
+             OR (YEAR(e.fecha_contratacion) < @anio AND e.fecha_contratacion > CAST(CAST(@anio - 1 AS VARCHAR(4)) + '-12-20' AS DATE)))
+        AND NOT EXISTS (
+            -- Asegurar que no haya un Aguinaldo ya registrado para este empleado en el mismo año
+            SELECT 1 
+            FROM Aguinaldo a 
+            WHERE a.fk_id_empleado = e.id_empleado 
+            AND YEAR(a.fecha) = @anio
+        );
+END;
+GO
 
 
 -- INSERTAR DATOS
