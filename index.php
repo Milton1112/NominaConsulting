@@ -92,9 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
         <i class="fas fa-store"></i> Tienda
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdownTienda">
-        <a class="dropdown-item" href="#"><i class="fas fa-box"></i> Productos</a>
+        <a class="dropdown-item" href="producto.php"><i class="fas fa-box"></i> Productos</a>
         <a class="dropdown-item" href="#"><i class="fas fa-shopping-cart"></i> Ventas</a>
-        <a class="dropdown-item" href="#"><i class="fas fa-percentage"></i> Comisiones</a>
         <a class="dropdown-item" href="marca.php"><i class="fas fa-tags"></i> Marcas</a>
         <a class="dropdown-item" href="categoria.php"><i class="fas fa-th-list"></i> Categorías</a>
     </div>
@@ -107,12 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signout'])) {
 
 <!-- Oficina agregada en Empresa -->
 <li class="nav-item">
-    <a class="nav-link" href="oficina.php"><i class="fas fa-map-marker-alt"></i> Oficinas</a> <!-- Oficina agregado -->
-</li>
-
-<!-- Póliza Contable agregada en Empresa -->
-<li class="nav-item">
-    <a class="nav-link" href="#"><i class="fas fa-book"></i> Póliza Contable</a>
+    <a class="nav-link" href="oficina.php"><i class="fas fa-map-marker-alt"></i> Oficinas</a> 
 </li>
 
 <!-- Menú de Usuario -->

@@ -189,7 +189,6 @@ CREATE TABLE Producto(
     nombre NVARCHAR(50) NOT NULL,
     cantidad INT NOT NULL,
     estado TEXT NOT NULL,
-    foto NVARCHAR(255) NOT NULL,
     descripcion TEXT NOT NULL,
     fk_id_marca INT NOT NULL,
     fk_id_categoria INT NOT NULL,
@@ -205,17 +204,6 @@ CREATE TABLE VentaTienda(
     fecha DATE NOT NULL,
     monto INT NOT NULL,
     monto_compra DECIMAL(8,2) NOT NULL,
-    fk_id_empleado INT NOT NULL,
-    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
-);
-GO
-
-CREATE TABLE Comisiones(
-    id_comisiones INT IDENTITY(1,1) PRIMARY KEY,
-    ventas INT NOT NULL,
-    porcentaje FLOAT NOT NULL,
-    monto DECIMAL(8,2) NOT NULL,
-    fecha DATE NOT NULL,
     fk_id_empleado INT NOT NULL,
     FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
 );
@@ -240,15 +228,6 @@ CREATE TABLE Liquidacion(
 );
 GO
 
-CREATE TABLE PolizaContable(
-    id_poliza_contable INT IDENTITY(1,1) PRIMARY KEY,
-    fecha DATE NOT NULL,
-    monto DECIMAL(8,2) NOT NULL,
-    tipo TEXT NOT NULL,
-    fk_id_empleado INT NOT NULL,
-    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado)
-);
-GO
 
 --Procedimientos almacenandos
 
@@ -900,6 +879,21 @@ BEGIN
 END;
 GO
 
+--CREAR 
+CREATE PROCEDURE sp_insertar_profesion
+@nombre NVARCHAR(255),
+@idEmpresa INT
+AS
+BEGIN
+
+    INSERT INTO 
+	    Profesion(nombre, fk_id_empresa)
+	VALUES
+	    (@nombre, @idEmpresa);
+
+END;
+GO
+
 --HoraExtras
 --Listar
 CREATE PROCEDURE sp_listar_hora_extra
@@ -1438,6 +1432,86 @@ BEGIN
         AND (e.nombres + ' ' + e.apellidos LIKE '%' + @nombre + '%' OR @nombre IS NULL);
 END;
 GO
+
+--Producto
+--Listar
+CREATE PROCEDURE sp_listar_producto
+@criterio NVARCHAR(255),
+@idEmpresa INT
+AS
+BEGIN
+
+    SELECT
+	    p.id_producto, p.nombre, p.cantidad, p.estado, p.descripcion,
+		m.nombre AS Marca, c.nombre AS Categoria,
+		e.nombre AS Nombre
+	FROM
+	    Producto p
+	INNER JOIN
+	    Marca m ON p.fk_id_marca = m.id_marca
+	INNER JOIN
+	    Categoria c ON p.fk_id_categoria = c.id_categoria
+	INNER JOIN
+	    Empresa e ON p.fk_id_empresa = e.id_empresa
+	WHERE
+	    fk_id_empresa = @idEmpresa
+		AND (e.nombre LIKE '%' + @criterio + '%' 
+         OR p.nombre LIKE '%' + @criterio + '%'
+		 OR p.estado LIKE '%' + @criterio + '%'
+		 OR p.descripcion LIKE '%' + @criterio + '%'
+		 OR m.nombre LIKE '%' + @criterio + '%'
+		 OR c.nombre LIKE '%' + @criterio + '%');
+
+END;
+GO
+
+--CREAR
+CREATE PROCEDURE sp_insertar_producto
+@nombre NVARCHAR(255),
+@cantidad INT,
+@estado NVARCHAR(255),
+@descripcion NVARCHAR(255),
+@idMarca INT,
+@idCategoria INT,
+@idEmpresa INT
+AS
+BEGIN
+
+     INSERT INTO
+	     Producto(nombre, cantidad, estado, descripcion, 
+		 fk_id_marca, fk_id_categoria, fk_id_empresa)
+	 VALUES
+	     (@nombre, @cantidad, @estado, @descripcion,
+		 @idMarca, @idCategoria, @idEmpresa)
+
+END;
+GO
+
+--Update
+CREATE PROCEDURE sp_actualizar_producto
+    @idProducto INT,
+    @nombre NVARCHAR(255),
+    @cantidad INT,
+    @estado NVARCHAR(255),
+    @descripcion NVARCHAR(255),
+    @idMarca INT,
+    @idCategoria INT,
+    @idEmpresa INT
+AS
+BEGIN
+    UPDATE Producto
+    SET nombre = @nombre,
+        cantidad = @cantidad,
+        estado = @estado,
+        descripcion = @descripcion,
+        fk_id_marca = @idMarca,
+        fk_id_categoria = @idCategoria,
+        fk_id_empresa = @idEmpresa
+    WHERE id_producto = @idProducto;
+END;
+GO
+
+--Agregar Venta
 
 
 -- INSERTAR DATOS
