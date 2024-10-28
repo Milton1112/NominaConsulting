@@ -99,16 +99,10 @@ sqlsrv_close($conn);
                             <a class="dropdown-item" href="estado.php"><i class="fas fa-info-circle"></i> Estados</a>
                         </div>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPlanilla" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user-tie"></i> Planilla
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownPlanilla">
-                            <a class="dropdown-item" href="planilla_salario.php"><i class="fas fa-info-circle"></i> Planilla Salario</a>
-                            <a class="dropdown-item" href="quincena1.php"><i class="fas fa-info-circle"></i> Quincena1</a>
-                            <a class="dropdown-item" href="quincena2.php"><i class="fas fa-info-circle"></i> Quincena2</a>
-                        </div>
-                    </li>
+                    
+                    <li class="nav-item"><a class="nav-link" href="planilla.php"><i class="fas fa-users"></i>Planilla</a></li>
+
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTienda" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-store"></i> Tienda

@@ -64,7 +64,7 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
         <div class="container d-flex justify-content-between">
             <a href="index.php" class="btn btn-outline-light d-flex align-items-center">Regresar</a>
             <h1 class="fs-3 mb-0 fw-bold">Historial de Salarios Mensuales</h1>
-            <a href="templates//planilla/agregar_planilla.php" class="btn btn-success">Agregar Salario</a> <!-- Botón de agregar salario -->
+            <a href="templates//planilla/agregar_planilla.php" class="btn btn-outline-light">Agregar Salario</a> <!-- Botón de agregar salario -->
         </div>
     </header>
 
