@@ -17,23 +17,23 @@ if (!isset($_SESSION['usuario_logueado']) || $_SESSION['usuario_logueado'] !== t
 }
 
 $criterio = "";
-$fecha_inicio = null;
-$fecha_fin = null;
+$anio = null;
+$mes = null;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['buscarPlanilla'])) {
     $criterio = $_POST['buscarPlanilla'];
-    $fecha_inicio = $_POST['fecha_inicio'] ?? null;
-    $fecha_fin = $_POST['fecha_fin'] ?? null;
+    $anio = $_POST['anio'] ?? null;
+    $mes = $_POST['mes'] ?? null;
 }
 
 $fk_id_empresa = $_SESSION['fk_id_empresa']; 
 
-$sql = "{CALL sp_listar_planilla(?, ?, ?, ?)}";
+$sql = "{CALL sp_listar_historialSalarioMensual(?, ?, ?, ?)}";
 $params = array(
     array($criterio, SQLSRV_PARAM_IN),
     array($fk_id_empresa, SQLSRV_PARAM_IN),
-    array($fecha_inicio, SQLSRV_PARAM_IN),
-    array($fecha_fin, SQLSRV_PARAM_IN)
+    array($anio, SQLSRV_PARAM_IN),
+    array($mes, SQLSRV_PARAM_IN)
 );
 
 $stmt = sqlsrv_query($conn, $sql, $params);
@@ -43,8 +43,8 @@ if ($stmt === false) {
 
 $planilla_data = [];
 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-    $year = date('Y', strtotime($row['fecha_contratacion']->format('Y-m-d')));
-$month = date('n', strtotime($row['fecha_contratacion']->format('Y-m-d')));
+    $year = $row['anio'];
+    $month = $row['mes'];
 
     $planilla_data[$year][$month][] = $row;
 }
@@ -61,8 +61,9 @@ $month = date('n', strtotime($row['fecha_contratacion']->format('Y-m-d')));
 </head>
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
-        <div class="container d-flex justify-content-center">
-            <h1 class="fs-3 mb-0 fw-bold">Lista de Planilla</h1>
+        <div class="container d-flex justify-content-between">
+            <h1 class="fs-3 mb-0 fw-bold">Historial de Salarios Mensuales</h1>
+            <a href="templates//planilla/agregar_planilla.php" class="btn btn-success">Agregar Salario</a> <!-- Botón de agregar salario -->
         </div>
     </header>
 
@@ -74,10 +75,10 @@ $month = date('n', strtotime($row['fecha_contratacion']->format('Y-m-d')));
                         <input type="text" class="form-control" name="buscarPlanilla" placeholder="Buscar por criterio" value="<?php echo isset($_POST['buscarPlanilla']) ? $_POST['buscarPlanilla'] : ''; ?>">
                     </div>
                     <div class="col-md-3">
-                        <input type="date" class="form-control" name="fecha_inicio" value="<?php echo isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : ''; ?>">
+                        <input type="number" class="form-control" name="anio" placeholder="Año" value="<?php echo isset($_POST['anio']) ? $_POST['anio'] : ''; ?>">
                     </div>
                     <div class="col-md-3">
-                        <input type="date" class="form-control" name="fecha_fin" value="<?php echo isset($_POST['fecha_fin']) ? $_POST['fecha_fin'] : ''; ?>">
+                        <input type="number" class="form-control" name="mes" placeholder="Mes" value="<?php echo isset($_POST['mes']) ? $_POST['mes'] : ''; ?>">
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">Buscar</button>

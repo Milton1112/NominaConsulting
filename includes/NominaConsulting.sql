@@ -225,6 +225,22 @@ CREATE TABLE Liquidacion(
 );
 GO
 
+CREATE TABLE HistorialSalarioMensual (
+    id_historial INT PRIMARY KEY IDENTITY,
+    fk_id_empleado INT NOT NULL, 
+    fk_id_empresa INT NOT NULL,  
+    salario_base DECIMAL(10, 2) NOT NULL, 
+    descuento_igss DECIMAL(8, 2) NOT NULL,
+    horas_extras DECIMAL(8, 2) NOT NULL DEFAULT 0, 
+    salario_liquido DECIMAL(10, 2) NOT NULL,
+    mes INT NOT NULL, 
+    anio INT NOT NULL, 
+    fecha_contratacion DATE NOT NULL, 
+    FOREIGN KEY (fk_id_empleado) REFERENCES Empleado(id_empleado),
+    FOREIGN KEY (fk_id_empresa) REFERENCES Empresa(id_empresa)
+);
+GO
+
 
 --Procedimientos almacenandos
 
@@ -1364,59 +1380,72 @@ GO
 
 
 --Planilla
-CREATE VIEW planilla_empleado AS
-SELECT 
-     e.id_empleado, 
-     e.nombres + ' ' + e.apellidos AS Nombre,
-     e.puesto + ' ' + o.nombre AS Cargo, 
-     o.nombre AS Dependencia,
-     s.salario_base, 
-     CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
-     CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
-     CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido
-FROM 
-    Empleado e
-INNER JOIN
-    Salario s ON s.fk_id_empleado = e.id_empleado
-INNER JOIN 
-    Oficina o ON e.fk_id_oficina = o.id_oficina
-LEFT JOIN 
-    (SELECT 
-         fk_id_empleado, 
-         SUM(horas) AS horas  
-     FROM 
-         HorasExtras
-     WHERE 
-         MONTH(fecha) = MONTH(GETDATE())  
-         AND YEAR(fecha) = YEAR(GETDATE())
-     GROUP BY 
-         fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado;
-GO
-
 --Listar
-CREATE PROCEDURE sp_listar_planilla
-    @criterio NVARCHAR(255),  
-    @idEmpresa INT,           
-    @fecha_inicio DATE = NULL, 
-    @fecha_fin DATE = NULL    
+CREATE PROCEDURE sp_listar_historialSalarioMensual
+    @criterio NVARCHAR(255) = NULL,   
+    @idEmpresa INT = NULL,          
+    @anio INT = NULL,                 
+    @mes INT = NULL                   
 AS
 BEGIN
     SELECT 
+        hsm.id_historial,
         e.id_empleado, 
         e.nombres + ' ' + e.apellidos AS Nombre,
-        e.puesto + ' ' + o.nombre AS Cargo, 
+        e.puesto + ' ' + o.nombre AS Cargo,
         o.nombre AS Dependencia,
-        s.salario_base, 
-        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
-        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
-        CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido,
-        e.fecha_contratacion  
+        hsm.salario_base, 
+        hsm.descuento_igss AS Descuento_IGSS,
+        hsm.horas_extras AS Horas_Extras,  
+        hsm.salario_liquido AS Liquido,
+        hsm.mes,
+        hsm.anio,
+        e.fecha_contratacion
     FROM 
-        Empleado e
-    INNER JOIN
-        Salario s ON s.fk_id_empleado = e.id_empleado
+        HistorialSalarioMensual hsm
+    INNER JOIN 
+        Empleado e ON hsm.fk_id_empleado = e.id_empleado
     INNER JOIN 
         Oficina o ON e.fk_id_oficina = o.id_oficina
+    WHERE 
+        (@idEmpresa IS NULL OR hsm.fk_id_empresa = @idEmpresa)  
+        AND (@anio IS NULL OR hsm.anio = @anio)                
+        AND (@mes IS NULL OR hsm.mes = @mes)                   
+        AND (
+            @criterio IS NULL OR (
+                e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%'
+                OR o.nombre LIKE '%' + @criterio + '%'
+                OR e.puesto LIKE '%' + @criterio + '%'
+                OR CAST(hsm.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+            )
+        )
+    ORDER BY 
+        hsm.anio, hsm.mes, e.id_empleado;
+END;
+GO
+
+-- Insertar HistorialSalarioMensual
+CREATE PROCEDURE sp_insertar_salarioMensual
+    @id_empresa INT,
+    @anio INT,
+    @mes INT
+AS
+BEGIN
+    INSERT INTO HistorialSalarioMensual (fk_id_empleado, fk_id_empresa, salario_base, descuento_igss, horas_extras, salario_liquido, mes, anio, fecha_contratacion)
+    SELECT 
+        e.id_empleado,
+        @id_empresa,
+        s.salario_base,
+        CAST(s.salario_base * 0.0483 AS DECIMAL(8, 2)) AS descuento_igss,
+        COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS horas_extras,
+        CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(10, 2)) AS salario_liquido,
+        @mes,
+        @anio,
+        e.fecha_contratacion
+    FROM 
+        Empleado e
+    INNER JOIN 
+        Salario s ON e.id_empleado = s.fk_id_empleado
     LEFT JOIN 
         (SELECT 
              fk_id_empleado, 
@@ -1424,18 +1453,19 @@ BEGIN
          FROM 
              HorasExtras
          WHERE 
-             MONTH(fecha) = MONTH(GETDATE())  
-             AND YEAR(fecha) = YEAR(GETDATE())
+             MONTH(fecha) = @mes AND YEAR(fecha) = @anio
          GROUP BY 
              fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
-    WHERE
-        e.fk_id_empresa = @idEmpresa
-        AND (e.fecha_contratacion BETWEEN @fecha_inicio AND @fecha_fin OR @fecha_inicio IS NULL OR @fecha_fin IS NULL)
-        AND (
-            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
-            OR o.nombre LIKE '%' + @criterio + '%'
-            OR e.puesto LIKE '%' + @criterio + '%'
-            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
+    WHERE 
+        e.fk_id_empresa = @id_empresa
+        AND (YEAR(e.fecha_contratacion) < @anio 
+             OR (YEAR(e.fecha_contratacion) = @anio AND MONTH(e.fecha_contratacion) <= @mes))  -- Validación de año y mes de contratación
+        AND NOT EXISTS (
+            SELECT 1 
+            FROM HistorialSalarioMensual hsm 
+            WHERE hsm.fk_id_empleado = e.id_empleado 
+            AND hsm.mes = @mes
+            AND hsm.anio = @anio
         );
 END;
 GO
