@@ -231,6 +231,9 @@ CREATE TABLE HistorialSalarioMensual (
     fk_id_empresa INT NOT NULL,  
     salario_base DECIMAL(10, 2) NOT NULL, 
     descuento_igss DECIMAL(8, 2) NOT NULL,
+    descuento_irtra DECIMAL(8, 2) NOT NULL,
+    quincena1 DECIMAL(8, 2) NOT NULL,
+    quincena2 DECIMAL(8, 2) NOT NULL,
     horas_extras DECIMAL(8, 2) NOT NULL DEFAULT 0, 
     salario_liquido DECIMAL(10, 2) NOT NULL,
     mes INT NOT NULL, 
@@ -1396,6 +1399,9 @@ BEGIN
         o.nombre AS Dependencia,
         hsm.salario_base, 
         hsm.descuento_igss AS Descuento_IGSS,
+        hsm.descuento_irtra AS Descuento_IRTRA,
+        hsm.quincena1 AS quincena1, 
+        hsm.quincena2 AS quincena2, 
         hsm.horas_extras AS Horas_Extras,  
         hsm.salario_liquido AS Liquido,
         hsm.mes,
@@ -1431,14 +1437,17 @@ CREATE PROCEDURE sp_insertar_salarioMensual
     @mes INT
 AS
 BEGIN
-    INSERT INTO HistorialSalarioMensual (fk_id_empleado, fk_id_empresa, salario_base, descuento_igss, horas_extras, salario_liquido, mes, anio, fecha_contratacion)
+    INSERT INTO HistorialSalarioMensual (fk_id_empleado, fk_id_empresa, salario_base, descuento_igss, descuento_irtra, horas_extras, salario_liquido, quincena1, quincena2, mes, anio, fecha_contratacion)
     SELECT 
         e.id_empleado,
         @id_empresa,
         s.salario_base,
         CAST(s.salario_base * 0.0483 AS DECIMAL(8, 2)) AS descuento_igss,
+        CAST(s.salario_base * 0.01 AS DECIMAL(8, 2)) AS descuento_irtra, 
         COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS horas_extras,
-        CAST(s.salario_base - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(10, 2)) AS salario_liquido,
+        CAST(s.salario_base - (s.salario_base * 0.0483) - (s.salario_base * 0.01) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(10, 2)) AS salario_liquido,
+        CAST((s.salario_base - (s.salario_base * 0.0483) - (s.salario_base * 0.01) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0)) / 2 AS DECIMAL(10, 2)) AS quincena1,
+        CAST((s.salario_base - (s.salario_base * 0.0483) - (s.salario_base * 0.01) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0)) / 2 AS DECIMAL(10, 2)) AS quincena2,
         @mes,
         @anio,
         e.fecha_contratacion
@@ -1459,7 +1468,7 @@ BEGIN
     WHERE 
         e.fk_id_empresa = @id_empresa
         AND (YEAR(e.fecha_contratacion) < @anio 
-             OR (YEAR(e.fecha_contratacion) = @anio AND MONTH(e.fecha_contratacion) <= @mes))  -- Validación de año y mes de contratación
+             OR (YEAR(e.fecha_contratacion) = @anio AND MONTH(e.fecha_contratacion) <= @mes))
         AND NOT EXISTS (
             SELECT 1 
             FROM HistorialSalarioMensual hsm 
@@ -1469,101 +1478,6 @@ BEGIN
         );
 END;
 GO
-
---Quincena1
-CREATE PROCEDURE sp_quincena1
-    @criterio NVARCHAR(255),  
-    @idEmpresa INT            
-AS
-BEGIN
-    DECLARE @fecha_inicio DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1);
-    DECLARE @fecha_fin DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 15);
-
-    SELECT 
-        e.id_empleado, 
-        e.nombres + ' ' + e.apellidos AS Nombre,
-        e.puesto + ' ' + o.nombre AS Cargo, 
-        o.nombre AS Dependencia,
-        s.salario_base, 
-        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
-        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
-        CAST(s.salario_base / 2 AS DECIMAL(8,2)) AS Salario_Quincena,
-        CAST((s.salario_base / 2) - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido_Quincenal,
-        e.fecha_contratacion
-    FROM 
-        Empleado e
-    INNER JOIN
-        Salario s ON s.fk_id_empleado = e.id_empleado
-    INNER JOIN 
-        Oficina o ON e.fk_id_oficina = o.id_oficina
-    LEFT JOIN 
-        (SELECT 
-             fk_id_empleado, 
-             SUM(horas) AS horas  
-         FROM 
-             HorasExtras
-         WHERE 
-             fecha BETWEEN @fecha_inicio AND @fecha_fin
-         GROUP BY 
-             fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
-    WHERE
-        e.fk_id_empresa = @idEmpresa
-        AND (
-            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
-            OR o.nombre LIKE '%' + @criterio + '%'
-            OR e.puesto LIKE '%' + @criterio + '%'
-            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
-        );
-END;
-GO
-
---Quincena2
-CREATE PROCEDURE sp_quincena2
-    @criterio NVARCHAR(255),  
-    @idEmpresa INT           
-AS
-BEGIN
-    DECLARE @fecha_inicio DATE = DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 16);
-    DECLARE @fecha_fin DATE = EOMONTH(GETDATE()); 
-
-    SELECT 
-        e.id_empleado, 
-        e.nombres + ' ' + e.apellidos AS Nombre,
-        e.puesto + ' ' + o.nombre AS Cargo, 
-        o.nombre AS Dependencia,
-        s.salario_base, 
-        CAST(s.salario_base * 0.0483 AS DECIMAL(8,2)) AS Descuento_IGSS,
-        CAST(COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Horas_Extras,  
-        CAST(s.salario_base / 2 AS DECIMAL(8,2)) AS Salario_Quincena,
-        CAST((s.salario_base / 2) - (s.salario_base * 0.0483) + COALESCE((s.salario_base / 22 / 8) * he.horas, 0) AS DECIMAL(8,2)) AS Liquido_Quincenal,
-        e.fecha_contratacion
-    FROM 
-        Empleado e
-    INNER JOIN
-        Salario s ON s.fk_id_empleado = e.id_empleado
-    INNER JOIN 
-        Oficina o ON e.fk_id_oficina = o.id_oficina
-    LEFT JOIN 
-        (SELECT 
-             fk_id_empleado, 
-             SUM(horas) AS horas  
-         FROM 
-             HorasExtras
-         WHERE 
-             fecha BETWEEN @fecha_inicio AND @fecha_fin
-         GROUP BY 
-             fk_id_empleado) he ON he.fk_id_empleado = e.id_empleado
-    WHERE
-        e.fk_id_empresa = @idEmpresa
-        AND (
-            e.nombres + ' ' + e.apellidos LIKE '%' + @criterio + '%' 
-            OR o.nombre LIKE '%' + @criterio + '%'
-            OR e.puesto LIKE '%' + @criterio + '%'
-            OR CAST(s.salario_base AS NVARCHAR(255)) LIKE '%' + @criterio + '%'
-        );
-END;
-GO
-
 
 --Producto
 --LISTAR

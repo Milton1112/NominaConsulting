@@ -80,7 +80,7 @@ insertarSalarioMensual($conn, $fk_id_empresa);
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="../../historial_salarios.php" class="btn btn-outline-light d-flex align-items-center">Regresar</a>
+            <a href="../../../planilla_salario.php" class="btn btn-outline-light d-flex align-items-center">Regresar</a>
             <div class="text-center flex-grow-1"><h1>Agregar Salario Mensual</h1></div>
         </div>
     </header>

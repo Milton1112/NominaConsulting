@@ -62,6 +62,7 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
 <body>
     <header class="bg-primary text-white py-3 shadow-sm">
         <div class="container d-flex justify-content-between">
+            <a href="index.php" class="btn btn-outline-light d-flex align-items-center">Regresar</a>
             <h1 class="fs-3 mb-0 fw-bold">Historial de Salarios Mensuales</h1>
             <a href="templates//planilla/agregar_planilla.php" class="btn btn-success">Agregar Salario</a> <!-- Botón de agregar salario -->
         </div>
@@ -116,6 +117,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                                                                     <th>Dependencia</th>
                                                                     <th>Salario Base</th>
                                                                     <th>Descuento IGSS</th>
+                                                                    <th>Descuento IRTRA</th>
+                                                                    <th>Quincena1</th>
+                                                                    <th>Quincena2</th>
                                                                     <th>Horas Extras</th>
                                                                     <th>Salario Líquido</th>
                                                                 </tr>
@@ -129,7 +133,10 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                                                                         <td><?php echo $row['Dependencia']; ?></td>
                                                                         <td><?php echo number_format($row['salario_base'], 2); ?></td>
                                                                         <td><?php echo number_format($row['Descuento_IGSS'], 2); ?></td>
+                                                                        <td><?php echo number_format($row['Descuento_IRTRA'], 2); ?></td>
                                                                         <td><?php echo number_format($row['Horas_Extras'], 2); ?></td>
+                                                                        <td><?php echo number_format($row['quincena1'], 2); ?></td>
+                                                                        <td><?php echo number_format($row['quincena2'], 2); ?></td>
                                                                         <td><?php echo number_format($row['Liquido'], 2); ?></td>
                                                                     </tr>
                                                                 <?php endforeach; ?>
