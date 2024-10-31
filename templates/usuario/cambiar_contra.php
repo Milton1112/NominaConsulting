@@ -30,7 +30,6 @@ if ($conn) {
             if ($sp_stmt) {
                 // Enviar la nueva contraseña por correo electrónico al usuario
                 enviarCorreoContrasena($correoUsuario, $nuevaContrasena, $nombreUsuario);
-                echo '<script>alert("Se ha restablecido la contraseña y enviado por correo electrónico."); window.location.href = "../../usuarios.php";</script>';
             } else {
                 echo '<script>alert("Error al restablecer la contraseña."); window.location.href = "../../usuarios.php";</script>';
             }

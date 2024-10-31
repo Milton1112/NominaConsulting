@@ -73,7 +73,7 @@ function restablecerContrasena() {
         if ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             $userId = $row['id_usuario'];
             // Redirigir a la página de enviar enlace de restablecimiento de contraseña con el ID del usuario
-            header("Location: /NOMINA-CONSULTING/templates/usuario/cambiar_contrasena.php?id=" . urlencode($userId));
+            header("Location: ../templates/usuario/cambiar_contrasena.php?id=" . urlencode($userId));
             exit();
         } else {
             echo "<div class='alert alert-danger text-center'>El correo no existe en la base de datos.</div>";

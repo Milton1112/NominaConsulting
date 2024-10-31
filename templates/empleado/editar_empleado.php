@@ -459,7 +459,7 @@ $carnet_irtra, $fecha_nacimiento, $fecha_contratacion, $numero_telefono){
                 </tr>
                 
             </table>
-            <p><a href='../../templates/empleado/view_informacion.php?id=<?php echo $id; ?>' class='button'>Ver información completa</a></p>
+            <p><a href='https://nominaconsulting-enb5eqc4adc7cab3.canadacentral-01.azurewebsites.net/templates/empleado/view_informacion.php?id=<?php echo $id; ?>' class='button'>Ver información completa</a></p>
         </div>
         <div class='footer'>
             <p>Gracias,<br>El equipo de Nomina-Consulting</p>

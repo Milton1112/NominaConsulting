@@ -324,7 +324,7 @@ function enviarCorreoContrasena($correo, $nuevaContrasena, $nombreUsuario){
             <p>Esta es tu correo y contraseña para iniciar sesión.</p>
             <p><strong>Nueva usuario:</strong> ". $correo. ' '. "contraseña:".  $nuevaContrasena . "</p>
             <p>Por favor, visite el siguiente enlace para crear una contraseña nueva y segura para su cuenta de Nomina-Consulting:</p>
-            <p><a href='modules/restablecer_contrasena.php' class='button'>Restablecer Contraseña</a></p>
+            <p><a href='https://nominaconsulting-enb5eqc4adc7cab3.canadacentral-01.azurewebsites.net/modules/restablecer_contrasena.php' class='button'>Restablecer Contraseña</a></p>
         </div>
         <div class='footer'>
             <p>Gracias,<br>El equipo de Nomina-Consulting</p>

@@ -118,9 +118,9 @@ while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                                                                     <th>Salario Base</th>
                                                                     <th>Descuento IGSS</th>
                                                                     <th>Descuento IRTRA</th>
+                                                                    <th>Horas Extras</th>
                                                                     <th>Quincena1</th>
                                                                     <th>Quincena2</th>
-                                                                    <th>Horas Extras</th>
                                                                     <th>Salario Líquido</th>
                                                                 </tr>
                                                             </thead>
